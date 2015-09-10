@@ -44,13 +44,22 @@ int main(void)
 	}
 }
 
-#define AX_START 0xFF
-#define BROADCAST_ID 0xFE
-#define AX_GOAL_LENGTH 0x05
-#define AX_WRITE_DATA 0x03
-#define AX_GOAL_POSITION_L 0x1E
-
 void doServo(int Position) {
+
+	unsigned char buffer[AX_GOAL_LENGTH + 1];
+	AX18FWrite(ID, ADDRESS, &Data, LENGTH);
+
+	buffer[0] = ID;
+	buffer[1] = AX_GOAL_LENGTH;
+	buffer[2] = AX_WRITE_DATA;
+	buffer[3] = writeAddr;
+	buffer[4] = writeData1
+	buffer[5] = writeData2
+
+
+
+
+
 	char Position_H,Position_L;
 	Position_L = Position & 0xFF;
 	Position_H = (Position >> 8) & 0xFF;           // 16 bits - 2 x 8 bits variables
