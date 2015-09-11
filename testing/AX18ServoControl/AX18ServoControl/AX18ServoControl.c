@@ -32,7 +32,15 @@ int main(void)
 
 	//setBD();
 
-	setID(THISID);
+	//doServo(50);
+
+	unsigned long Position = 50;
+	unsigned char	Position_L = Position & 0xFF;
+	unsigned char	Position_H = (Position >> 8) & 0xFF;           // 16 bits - 2 x 8 bits variables
+unsigned char buffer[2];
+buffer[0] = Position_L;
+buffer[1] = Position_H;
+	AX18FWrite(BROADCAST_ID, AX_GOAL_POSITION_L, buffer, 2);
 
 	while(1) //infinite loop
 	{
@@ -50,29 +58,15 @@ int main(void)
 
 void doServo(int Position) {
 
-	unsigned char buffer[AX_GOAL_LENGTH + 1];
-	AX18FWrite(ID, ADDRESS, &Data, LENGTH);
-
-	buffer[0] = ID;
-	buffer[1] = AX_GOAL_LENGTH;
-	buffer[2] = AX_WRITE_DATA;
-	buffer[3] = writeAddr;
-	buffer[4] = writeData1
-	buffer[5] = writeData2
-
-
-
-
-
 	char Position_H,Position_L;
 	Position_L = Position & 0xFF;
 	Position_H = (Position >> 8) & 0xFF;           // 16 bits - 2 x 8 bits variables
 
-	unsigned char Checksum = ~(THISID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H);	
+	unsigned char Checksum = ~(BROADCAST_ID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H);	
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
-	uart1_putc(THISID);
+	uart1_putc(BROADCAST_ID);
 	uart1_putc(AX_GOAL_LENGTH);
 	uart1_putc(AX_WRITE_DATA);
 	uart1_putc(AX_GOAL_POSITION_L);

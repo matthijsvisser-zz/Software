@@ -38,6 +38,7 @@ SUBDIRS :=
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../AX18ServoControl.c \
+../AX18ServoDriver.c \
 ../uart.c
 
 
@@ -49,18 +50,22 @@ ASM_SRCS +=
 
 OBJS +=  \
 AX18ServoControl.o \
+AX18ServoDriver.o \
 uart.o
 
 OBJS_AS_ARGS +=  \
 AX18ServoControl.o \
+AX18ServoDriver.o \
 uart.o
 
 C_DEPS +=  \
 AX18ServoControl.d \
+AX18ServoDriver.d \
 uart.d
 
 C_DEPS_AS_ARGS +=  \
 AX18ServoControl.d \
+AX18ServoDriver.d \
 uart.d
 
 OUTPUT_FILE_PATH +=AX18ServoControl.elf
@@ -77,6 +82,8 @@ LINKER_SCRIPT_DEP+=
 
 
 # AVR32/GNU C Compiler
+
+
 
 
 
