@@ -1,3 +1,4 @@
+#include "uart.h"
 #include "AX18ServoDriver.h"
 
 /**
@@ -50,10 +51,9 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 void AX18Position(unsigned char id, unsigned long pos) {
 
 	unsigned char buffer[2] = {
-		unsigned16ToUnsigned8Lower(pos), 
+		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
-
-	AX18FWrite(id, AX_GOAL_POSITION_L, buffer, 2);
+	AX18FWrite(BROADCAST_ID, AX_GOAL_POSITION_L, buffer, 2);
 }
 
 /**
