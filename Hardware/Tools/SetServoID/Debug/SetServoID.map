@@ -9,16 +9,14 @@ Discarded input sections
 
  .data          0x00000000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm644p.o
  .bss           0x00000000        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm644p.o
- .text          0x00000000        0x0 AX18ServoControl.o
- .data          0x00000000        0x0 AX18ServoControl.o
- .bss           0x00000000        0x0 AX18ServoControl.o
- .text.doServo  0x00000000       0x4a AX18ServoControl.o
- .text.setBD    0x00000000       0x32 AX18ServoControl.o
- .text.ledState
-                0x00000000       0x3c AX18ServoControl.o
+ .text          0x00000000        0x0 SetServoID.o
+ .data          0x00000000        0x0 SetServoID.o
+ .bss           0x00000000        0x0 SetServoID.o
  .text          0x00000000        0x0 uart.o
  .data          0x00000000        0x0 uart.o
  .bss           0x00000000        0x0 uart.o
+ .text.uart_init
+                0x00000000       0x32 uart.o
  .text.uart_getc
                 0x00000000       0x3c uart.o
  .text.uart_putc
@@ -82,7 +80,7 @@ Linker script and memory map
 
 Address of section .data set to 0x800100
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm644p.o
-LOAD AX18ServoControl.o
+LOAD SetServoID.o
 LOAD uart.o
 START GROUP
 LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5\libm.a
@@ -183,7 +181,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000      0x2f0
+.text           0x00000000      0x31e
  *(.vectors)
  .vectors       0x00000000       0x7c c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr5/crtm644p.o
                 0x00000000                __vector_default
@@ -267,36 +265,36 @@ END GROUP
                 0x000000a0                __vector_18
                 0x000000a4                . = ALIGN (0x2)
  *(.text.*)
- .text.setID    0x000000a4       0x3c AX18ServoControl.o
+ .text.setID    0x000000a4       0x3c SetServoID.o
                 0x000000a4                setID
- .text.main     0x000000e0       0x1e AX18ServoControl.o
-                0x000000e0                main
+ .text.ledState
+                0x000000e0       0x3c SetServoID.o
+                0x000000e0                ledState
+ .text.main     0x0000011c       0x42 SetServoID.o
+                0x0000011c                main
  .text.__vector_20
-                0x000000fe       0x5c uart.o
-                0x000000fe                __vector_20
+                0x0000015e       0x5c uart.o
+                0x0000015e                __vector_20
  .text.__vector_21
-                0x0000015a       0x54 uart.o
-                0x0000015a                __vector_21
- .text.uart_init
-                0x000001ae       0x32 uart.o
-                0x000001ae                uart_init
+                0x000001ba       0x54 uart.o
+                0x000001ba                __vector_21
  .text.__vector_28
-                0x000001e0       0x5c uart.o
-                0x000001e0                __vector_28
+                0x0000020e       0x5c uart.o
+                0x0000020e                __vector_28
  .text.__vector_29
-                0x0000023c       0x54 uart.o
-                0x0000023c                __vector_29
+                0x0000026a       0x54 uart.o
+                0x0000026a                __vector_29
  .text.uart1_init
-                0x00000290       0x32 uart.o
-                0x00000290                uart1_init
+                0x000002be       0x32 uart.o
+                0x000002be                uart1_init
  .text.uart1_putc
-                0x000002c2       0x2a uart.o
-                0x000002c2                uart1_putc
-                0x000002ec                . = ALIGN (0x2)
+                0x000002f0       0x2a uart.o
+                0x000002f0                uart1_putc
+                0x0000031a                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x000002ec        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
-                0x000002ec                _exit
-                0x000002ec                exit
+ .fini9         0x0000031a        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
+                0x0000031a                _exit
+                0x0000031a                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -315,11 +313,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x000002ec        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
+ .fini0         0x0000031a        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr5\libgcc.a(_exit.o)
  *(.fini0)
-                0x000002f0                _etext = .
+                0x0000031e                _etext = .
 
-.data           0x00800100        0x0 load address 0x000002f0
+.data           0x00800100        0x0 load address 0x0000031e
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -364,8 +362,8 @@ END GROUP
                 0x0080016a       0x20 uart.o
  *(COMMON)
                 0x0080018a                PROVIDE (__bss_end, .)
-                0x000002f0                __data_load_start = LOADADDR (.data)
-                0x000002f0                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0000031e                __data_load_start = LOADADDR (.data)
+                0x0000031e                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0080018a        0x0
                 0x0080018a                PROVIDE (__noinit_start, .)
@@ -413,7 +411,7 @@ END GROUP
 
 .comment        0x00000000       0x30
  *(.comment)
- .comment       0x00000000       0x30 AX18ServoControl.o
+ .comment       0x00000000       0x30 SetServoID.o
                                  0x31 (size before relaxing)
  .comment       0x00000000       0x31 uart.o
 
@@ -432,47 +430,47 @@ END GROUP
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0xc8
+.debug_aranges  0x00000000       0xb8
  *(.debug_aranges)
  .debug_aranges
-                0x00000000       0x40 AX18ServoControl.o
+                0x00000000       0x30 SetServoID.o
  .debug_aranges
-                0x00000040       0x88 uart.o
+                0x00000030       0x88 uart.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0xa06
+.debug_info     0x00000000      0x8cd
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x494 AX18ServoControl.o
- .debug_info    0x00000494      0x572 uart.o
+ .debug_info    0x00000000      0x35b SetServoID.o
+ .debug_info    0x0000035b      0x572 uart.o
 
-.debug_abbrev   0x00000000      0x234
+.debug_abbrev   0x00000000      0x25e
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x123 AX18ServoControl.o
- .debug_abbrev  0x00000123      0x111 uart.o
+ .debug_abbrev  0x00000000      0x14d SetServoID.o
+ .debug_abbrev  0x0000014d      0x111 uart.o
 
-.debug_line     0x00000000      0x320
+.debug_line     0x00000000      0x378
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000      0x132 AX18ServoControl.o
- .debug_line    0x00000132      0x1ee uart.o
+ .debug_line    0x00000000      0x18a SetServoID.o
+ .debug_line    0x0000018a      0x1ee uart.o
 
-.debug_frame    0x00000000      0x22c
+.debug_frame    0x00000000      0x200
  *(.debug_frame)
- .debug_frame   0x00000000       0x80 AX18ServoControl.o
- .debug_frame   0x00000080      0x1ac uart.o
+ .debug_frame   0x00000000       0x54 SetServoID.o
+ .debug_frame   0x00000054      0x1ac uart.o
 
-.debug_str      0x00000000      0x362
+.debug_str      0x00000000      0x35b
  *(.debug_str)
- .debug_str     0x00000000      0x1cc AX18ServoControl.o
-                                0x205 (size before relaxing)
- .debug_str     0x000001cc      0x196 uart.o
-                                0x311 (size before relaxing)
+ .debug_str     0x00000000      0x1b3 SetServoID.o
+                                0x1e7 (size before relaxing)
+ .debug_str     0x000001b3      0x1a8 uart.o
+                                0x301 (size before relaxing)
 
-.debug_loc      0x00000000      0x87f
+.debug_loc      0x00000000      0x78e
  *(.debug_loc)
- .debug_loc     0x00000000      0x22c AX18ServoControl.o
- .debug_loc     0x0000022c      0x653 uart.o
+ .debug_loc     0x00000000      0x13b SetServoID.o
+ .debug_loc     0x0000013b      0x653 uart.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -492,12 +490,12 @@ END GROUP
 .debug_pubtypes
  *(.debug_pubtypes)
 
-.debug_ranges   0x00000000       0xd8
+.debug_ranges   0x00000000       0xc8
  *(.debug_ranges)
- .debug_ranges  0x00000000       0x30 AX18ServoControl.o
- .debug_ranges  0x00000030       0xa8 uart.o
+ .debug_ranges  0x00000000       0x20 SetServoID.o
+ .debug_ranges  0x00000020       0xa8 uart.o
 
 .debug_macro
  *(.debug_macro)
-OUTPUT(AX18ServoControl.elf elf32-avr)
+OUTPUT(SetServoID.elf elf32-avr)
 LOAD linker stubs

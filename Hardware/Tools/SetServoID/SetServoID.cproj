@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
-    <ProjectGuid>{43342043-8e6c-4e60-adff-3ddd5c6debad}</ProjectGuid>
+    <ProjectGuid>{38c9be57-d5a9-4ce3-97aa-a0175e631900}</ProjectGuid>
     <avrdevice>ATmega644P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,9 +12,9 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>AX18ServoControl</AssemblyName>
-    <Name>AX18ServoControl</Name>
-    <RootNamespace>AX18ServoControl</RootNamespace>
+    <AssemblyName>SetServoID</AssemblyName>
+    <Name>SetServoID</Name>
+    <RootNamespace>SetServoID</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
@@ -109,13 +109,16 @@
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AX18ServoControl.c">
+    <Compile Include="AX18ServoDriver.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="IOPorts_ATMega.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="SetServoID.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="SetServoID.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="uart.c">

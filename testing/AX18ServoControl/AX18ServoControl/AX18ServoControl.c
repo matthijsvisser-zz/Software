@@ -15,9 +15,12 @@
 #include "IOPorts_ATMega.h"
 #include "uart.h"
 
+void setID(unsigned char IDnumber);
 void doServo(int Position);
 void setBD(void);
 void ledState(unsigned char Status);
+
+#define THISID 0x55
 
 int main(void)
 {
@@ -29,18 +32,19 @@ int main(void)
 
 	//setBD();
 
+	setID(THISID);
 
 	while(1) //infinite loop
 	{
-		PORTB = PIN0_bm;
-		_delay_ms(1000); 
-		PORTB = 0x00; 
-		ledState(1);
-		doServo(0x00);		
-		_delay_ms(1000);
-		uart_puts("hoi sanda");
-		ledState(0);
-		doServo(0x3FF);
+// 		PORTB = PIN0_bm;
+// 		_delay_ms(1000); 
+// 		PORTB = 0x00; 
+// 		ledState(1);
+// 		doServo(0x00);		
+// 		_delay_ms(1000);
+// 		uart_puts("hoi sanda");
+// 		ledState(0);
+// 		doServo(0x3FF);
 	}
 }
 
@@ -55,11 +59,11 @@ void doServo(int Position) {
 	Position_L = Position & 0xFF;
 	Position_H = (Position >> 8) & 0xFF;           // 16 bits - 2 x 8 bits variables
 
-	unsigned char Checksum = ~(BROADCAST_ID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H);	
+	unsigned char Checksum = ~(THISID + AX_GOAL_LENGTH + AX_WRITE_DATA + AX_GOAL_POSITION_L + Position_L + Position_H);	
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
-	uart1_putc(BROADCAST_ID);
+	uart1_putc(THISID);
 	uart1_putc(AX_GOAL_LENGTH);
 	uart1_putc(AX_WRITE_DATA);
 	uart1_putc(AX_GOAL_POSITION_L);
@@ -87,14 +91,26 @@ void setBD (void)
 
 void ledState (unsigned char Status)
 {
-	unsigned char Checksum = ~(BROADCAST_ID + AX_LED_LENGTH + AX_WRITE_DATA + AX_LED + Status);
+	unsigned char Checksum = ~(THISID + AX_LED_LENGTH + AX_WRITE_DATA + AX_LED + Status);
 	uart1_putc(AX_START);              // Send Instructions over Serial
 	uart1_putc(AX_START);
-	uart1_putc(BROADCAST_ID);
+	uart1_putc(THISID);
 	uart1_putc(AX_LED_LENGTH);
 	uart1_putc(AX_WRITE_DATA);
 	uart1_putc(AX_LED);
 	uart1_putc(Status);
 	uart1_putc(Checksum);
+}
 
+void setID (unsigned char IDnumber)
+{
+	unsigned char checksum = ~(BROADCAST_ID + AX_LED_LENGTH + AX_WRITE_DATA + AX_ID + IDnumber);
+	uart1_putc(AX_START);
+	uart1_putc(AX_START);
+	uart1_putc(BROADCAST_ID);
+	uart1_putc(AX_LED_LENGTH);
+	uart1_putc(AX_WRITE_DATA);
+	uart1_putc(AX_ID);
+	uart1_putc(IDnumber);
+	uart1_putc(checksum);
 }
