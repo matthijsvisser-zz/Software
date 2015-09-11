@@ -8,7 +8,7 @@
  * @param  length  Length of data
  * @return         Checksum
  */
-unsigned char generateChecksum(unsigned char id, unsigned char address, unsigned char &data, unsigned length) {
+unsigned char generateChecksum(unsigned char id, unsigned char address, unsigned char *data, unsigned length) {
 
 	unsigned char checksum = id + (length + 3) + AX_WRITE_DATA + address;
 	for(unsigned char i = 0; i < length; i++) {
@@ -24,7 +24,7 @@ unsigned char generateChecksum(unsigned char id, unsigned char address, unsigned
  * @param data    Data to write to memory
  * @param length  Length of data
  */
-void AX18FWrite(unsigned char id, unsigned char address, unsigned char &data, unsigned char length) {
+void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length) {
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
