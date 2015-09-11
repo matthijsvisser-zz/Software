@@ -7,7 +7,7 @@
 
 #include "SetServoID.h"
 
-#define THISID 0x55 // Change value
+#define THISID 62 // Change value
 
 int main(void)
 {
@@ -21,7 +21,7 @@ int main(void)
         ledState(1);
         _delay_ms(1000);
         ledState(0); 
-        _delay_ms(1000);z
+        _delay_ms(1000);
     }
 }
 

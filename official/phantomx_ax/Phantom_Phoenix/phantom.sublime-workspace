@@ -8,38 +8,40 @@
 	"buffers":
 	[
 		{
-			"file": "Hex_Globals.h",
+			"contents": "/*\n * SetServoID.c\n *\n * Created: 11-9-2015 12:28:19\n *  Author: mv\n */ \n\n#include \"SetServoID.h\"\n\n#define THISID 0x55 // Change value\n\nint main(void)\n{\n	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));\n	sei();\n\n	setID(THISID);\n\n    while(1)\n    {\n        ledState(1);\n        _delay_ms(1000);\n        ledState(0); \n        _delay_ms(1000);\n    }\n}\n\n/**\n * Sets the ID of the connected AX18 servo. Only one servo must be connected at a time.\n * @param IDnumber Programs the wanted ID in the servo.\n */\nvoid setID (unsigned char IDnumber)\n{\n	unsigned char checksum = ~(BROADCAST_ID + AX_LED_LENGTH + AX_WRITE_DATA + AX_ID + IDnumber);\n	uart1_putc(AX_START);\n	uart1_putc(AX_START);\n	uart1_putc(BROADCAST_ID);\n	uart1_putc(AX_LED_LENGTH);\n	uart1_putc(AX_WRITE_DATA);\n	uart1_putc(AX_ID);\n	uart1_putc(IDnumber);\n	uart1_putc(checksum);\n}\n\n/**\n * Turns the indication led on the servo on or off.\n * @param Status The status of the indication led.\n */\nvoid ledState (unsigned char Status)\n{\n	unsigned char Checksum = ~(THISID + AX_LED_LENGTH + AX_WRITE_DATA + AX_LED + Status);\n	uart1_putc(AX_START);              // Send Instructions over Serial\n	uart1_putc(AX_START);\n	uart1_putc(THISID);\n	uart1_putc(AX_LED_LENGTH);\n	uart1_putc(AX_WRITE_DATA);\n	uart1_putc(AX_LED);\n	uart1_putc(Status);\n	uart1_putc(Checksum);\n}",
+			"file": "/C/Users/m/Documents/Git/Software/Hardware/Tools/SetServoID/SetServoID.c",
+			"file_size": 1366,
+			"file_write_time": 130864433808191163,
 			"settings":
 			{
-				"buffer_size": 2741,
+				"buffer_size": 1307,
 				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoDriver.h",
+			"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoDriver.c",
 			"settings":
 			{
-				"buffer_size": 4654,
-				"line_ending": "Windows",
-				"name": "// EEPROM AREA  ///////////////////////////"
+				"buffer_size": 2600,
+				"line_ending": "Windows"
 			}
 		},
 		{
-			"contents": "### Adapted from code in Artificial Intelligence: A Modern Approach, by\n### Russell and Norvig\n\n### Note to students: please do not use the AIMA code for HW 2. Use this\n### code instead. I've made some changes to the AIMA code to make it simpler\n### and easier to work with. Using the AIMA code directly will just give you\n#### headaches.\n\nimport random\n\n### global variable holding all possible agent actions\nagent_actions = ['Left', 'Right', 'Suck', 'Up', 'Down']\n\n### you should not need to change this code.\nclass Agent :\n    \"\"\"An Agent is a subclass of Object with one required slot,\n    .program, which should hold a function that takes one argument, the\n    percept, and returns an action. (What counts as a percept or action\n    will depend on the specific environment in which the agent exists.) \"\"\"\n\n    def __init__(self): \n        self.alive = True\n\n    def program(percept):\n        return raw_input('Percept=%s; action? ' % percept)\n        \n\n### a simple but stupid agent. Use this as a template when creating your own agents.\nclass RandomAgent(Agent):\n    \"An agent that chooses an action at random, ignoring all percepts.\"\n    def __init__(self, actions):\n        Agent.__init__(self)\n        self.actions = actions\n\n    def program(self, percept) :\n        action = random.choice(self.actions)\n        print \"Percept: %s Action: %s\" % (percept, action)\n        return action\n\n\n### A slightly smarter agent - basically a reflex agent, this program just uses \n### its current percepts to decide on an action.\nclass TableDrivenAgent(Agent) :\n\n    def __init__(self) :\n        Agent.__init__(self)\n\n        ### this is how our agent will determine what to do.\n        ### for every possible percept, we will look up in our\n        ### table (a dictionary) to find the correct action.\n        \n        ### this will only work in 3x3 grids.\n\n        ### if the room is clean, we need to move\n        self.actionTable = {((0,0), 'Clean') : 'Right',\n                            ((1,0), 'Clean') : 'Right',\n                            ((2,0), 'Clean') : 'Up',\n                            ((2,1), 'Clean') : 'Up',\n                            ((2,2), 'Clean') : 'Left',\n                            ((1,2), 'Clean') : 'Left',\n                            ((0,2), 'Clean') : 'Down',\n                            ((0,1), 'Clean') : 'Down',\n                            ((1,1), 'Clean') : 'Down'}\n        ### if the room is dirty, let's clean it.\n        for i in (0,1,2) :\n            for j in (0,1,2) :\n                self.actionTable[((i,j), 'Dirty')] = 'Suck'\n        ### this gives us a dictionary that maps room coordinates and state to an action.\n\n    \n    def program(self, percept) :\n        ### All we do is use the current percept to look up the correct\n        ### action in a table.\n        print \"Percept: %s Action: %s\" % (percept, self.actionTable[percept])\n        return self.actionTable[percept]\n\nclass ModelDrivenAgent(Agent) :\n\n    def __init__(self) :\n        Agent.__init__(self)\n\n        \n        self.previousLocation = []\n        self.previousAction = ''\n        self.currentGoal = 'FindWallX';\n        self.roomX = 0\n        self.roomY = 0;\n\n        self.currentColumn = 0;\n        self.currentDirection = 'Down'\n        \n\n    \n    def program(self, percept) :\n\n        newAction = 'Clean';\n\n        if self.currentGoal == 'FindWallX':\n\n            # Check if we moved\n            if self.previousLocation == percept[0]:\n                self.roomX = percept[0][0]\n                self.currentGoal = 'FindWallY'\n                newAction = 'Up'\n            else:\n                newAction = 'Right'\n        else:\n            if self.currentGoal == 'FindWallY':\n\n                # Check if we moved\n                if self.previousLocation == percept[0]:\n                    self.roomY = percept[0][0]\n                    self.currentGoal = 'CleanRoom'\n                    self.currentDirection = 'Down'\n                    newAction = 'Down'\n                else:\n                    newAction = 'Up'\n            else:\n                if self.currentGoal == 'CleanRoom':\n                    if percept[1] == 'Dirty':\n                        newAction = 'Suck'\n                    if percept[1] == 'Clean':\n                        if self.currentDirection == 'Down':\n                            if percept[0][1] == 0:\n                                self.currentDirection = 'Up'\n                                newAction = 'Left'\n                            else:\n                                newAction = 'Down'\n                        else:\n                            if self.currentDirection == 'Up':\n                                if percept[0][1] == self.roomY:\n                                    self.currentDirection = 'Down'\n                                    newAction = 'Left'\n                                else:\n                                    newAction = 'Up'\n\n\n\n        self.previousLocation = percept[0]\n        self.previousAction = newAction\n\n        print \"Percept: %s Action: %s Goal: %s\" % (percept, newAction, self.currentGoal)\n        return newAction\n\n\n\n        \n        \n\n        \n",
-			"file": "/C/Users/m/Google Drive/Robotica_Matthijs/AI2015_ass1/sampleAgent.py",
-			"file_size": 5143,
-			"file_write_time": 130861963820000000,
+			"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoControl.c",
 			"settings":
 			{
-				"buffer_size": 5143,
-				"line_ending": "Unix"
+				"buffer_size": 667,
+				"line_ending": "Windows"
 			}
 		},
 		{
-			"file": "/C/Users/m/Downloads/putty.log",
+			"contents": "/*\n * SetServoID.h\n *\n * Created: 11-9-2015 12:28:19\n *  Author: mv\n */ \n#ifndef F_CPU\n#define F_CPU 16000000UL // 16 MHz clock speed\n#endif\n\n#define UART_BAUD_RATE 1000000\n\n#include <avr/io.h>\n#include <util/delay.h>\n#include <avr/interrupt.h>\n#include <stdlib.h>\n#include <stdbool.h>\n#include \"AX18ServoDriver.h\"\n\n#include \"IOPorts_ATMega.h\"\n#include \"uart.h\"	\n\nvoid setID(unsigned char IDnumber);\nvoid ledState(unsigned char Status);",
+			"file": "/C/Users/m/Documents/Git/Software/Hardware/Tools/SetServoID/SetServoID.h",
+			"file_size": 459,
+			"file_write_time": 130864428165271693,
 			"settings":
 			{
-				"buffer_size": 106,
+				"buffer_size": 436,
 				"line_ending": "Windows"
 			}
 		}
@@ -82,13 +84,19 @@
 	"expanded_folders":
 	[
 		"/C/Users/m/Documents/Git/Software",
-		"/C/Users/m/Documents/Git/Software/official",
+		"/C/Users/m/Documents/Git/Software/Hardware",
+		"/C/Users/m/Documents/Git/Software/Hardware/Tools",
 		"/C/Users/m/Documents/Git/Software/testing",
 		"/C/Users/m/Documents/Git/Software/testing/AX18ServoControl",
 		"/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl"
 	],
 	"file_history":
 	[
+		"/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/SetServoID.c",
+		"/C/Users/m/Downloads/putty.log",
+		"/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoControl.c",
+		"/C/Users/m/Google Drive/Robotica_Matthijs/AI2015_ass1/sampleAgent.py",
+		"/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoDriver.h",
 		"/C/Users/m/Documents/Git/Software/official/phantomx_ax/Phantom_Phoenix/ServoDriver.h",
 		"/C/Users/m/Documents/Git/Software/official/phantomx_ax/Phantom_Phoenix/phoenix_driver_ax12.cpp",
 		"/C/Users/m/Documents/Git/Software/official/phantomx_ax/Phantom_Phoenix/BioloidEX.cpp",
@@ -141,57 +149,28 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 1,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "Hex_Globals.h",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 2741,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								518,
-								518
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/C++/C++.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1090.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoDriver.h",
+					"file": "/C/Users/m/Documents/Git/Software/Hardware/Tools/SetServoID/SetServoID.c",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4654,
+						"buffer_size": 1307,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								217,
-								219
+								834,
+								834
 							]
 						],
 						"settings":
 						{
-							"auto_name": "// EEPROM AREA  ///////////////////////////",
 							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
@@ -202,61 +181,89 @@
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "/C/Users/m/Google Drive/Robotica_Matthijs/AI2015_ass1/sampleAgent.py",
+					"buffer": 1,
+					"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoDriver.c",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5143,
+						"buffer_size": 2600,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2917,
-								2917
+								631,
+								631
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Python/Python.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1412.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "/C/Users/m/Downloads/putty.log",
+					"buffer": 2,
+					"file": "/C/Users/m/Documents/Git/Software/testing/AX18ServoControl/AX18ServoControl/AX18ServoControl.c",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 106,
+						"buffer_size": 667,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								667,
+								664
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/Text/Plain text.tmLanguage"
+							"syntax": "Packages/C++/C++.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 219.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/C/Users/m/Documents/Git/Software/Hardware/Tools/SetServoID/SetServoID.h",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 436,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								285,
+								285
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/C++/C++.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
