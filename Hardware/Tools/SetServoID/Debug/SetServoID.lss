@@ -156,7 +156,7 @@ void ledState (unsigned char Status)
   ea:	8f ef       	ldi	r24, 0xFF	; 255
   ec:	0e 94 78 01 	call	0x2f0	; 0x2f0 <uart1_putc>
 	uart1_putc(THISID);
-  f0:	8e e3       	ldi	r24, 0x3E	; 62
+  f0:	84 e3       	ldi	r24, 0x34	; 52
   f2:	0e 94 78 01 	call	0x2f0	; 0x2f0 <uart1_putc>
 	uart1_putc(AX_LED_LENGTH);
   f6:	84 e0       	ldi	r24, 0x04	; 4
@@ -176,7 +176,7 @@ void ledState (unsigned char Status)
 void ledState (unsigned char Status)
 {
 	unsigned char Checksum = ~(THISID + AX_LED_LENGTH + AX_WRITE_DATA + AX_LED + Status);
- 10e:	8e e5       	ldi	r24, 0x5E	; 94
+ 10e:	84 e5       	ldi	r24, 0x54	; 84
  110:	8c 0f       	add	r24, r28
 	uart1_putc(THISID);
 	uart1_putc(AX_LED_LENGTH);
@@ -191,7 +191,7 @@ void ledState (unsigned char Status)
 
 0000011c <main>:
 
-#define THISID 62 // Change value
+#define THISID 52 // Change value
 
 int main(void)
 {
@@ -203,7 +203,7 @@ int main(void)
  124:	78 94       	sei
 
 	setID(THISID);
- 126:	8e e3       	ldi	r24, 0x3E	; 62
+ 126:	84 e3       	ldi	r24, 0x34	; 52
  128:	0e 94 52 00 	call	0xa4	; 0xa4 <setID>
 
     while(1)

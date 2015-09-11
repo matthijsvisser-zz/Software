@@ -7,14 +7,14 @@
 
 #include "SetServoID.h"
 
-#define THISID 62 // Change value
+#define THISID 52 // Change value
 
 int main(void)
 {
 	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	sei();
 
-	setID(THISID);
+	//setID(THISID);
 
     while(1)
     {
