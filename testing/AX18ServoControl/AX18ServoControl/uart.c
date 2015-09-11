@@ -684,6 +684,15 @@ void uart1_init(unsigned int baudrate)
     
 }/* uart_init */
 
+unsigned int uart1_canRead(void) {
+  return (( UART_RxHead + 1) & UART_RX_BUFFER_MASK) - UART_RxTail;
+}
+
+void uart1_clearRxBuffer(void) {
+  UART1_RxHead = 0;
+  UART1_RxTail = 0;
+}
+
 
 /*************************************************************************
 Function: uart1_getc()
