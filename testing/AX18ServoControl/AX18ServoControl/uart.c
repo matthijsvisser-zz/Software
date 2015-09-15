@@ -801,7 +801,7 @@ inline void uart1_TxEnable(void) {
 }
 
 inline void uart1_TxDisable(void) {
-  UART1_CONTROL ~= (1<<UART1_BIT_TXEN);
+  UART1_CONTROL = ~(UART1_CONTROL | (1<<UART1_BIT_TXEN));
 }
 
 

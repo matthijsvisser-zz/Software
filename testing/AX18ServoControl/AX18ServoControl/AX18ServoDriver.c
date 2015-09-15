@@ -30,7 +30,7 @@ unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsign
 unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned char address, unsigned char *data, unsigned char length) {
 
 	unsigned char checksum = id + (length + 3) + error + AX_READ_DATA + address;
-	for(unsigned char i = 0; i < length; i+=) {
+	for(unsigned char i = 0; i < length; i++) {
 		checksum += data[i];
 	}
 	return ~checksum;
@@ -90,7 +90,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	uart1_putc(length);
 
 
-	uart1_putc(generateTxChecksum(id, AX_READ_DATA, address, /* x */, length));
+	uart1_putc(generateTxChecksum(id, AX_READ_DATA, address, length));
 
 	// Disable Uart Tx for we can receive
 	uart1_TxDisable();
@@ -158,7 +158,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 
 		}
 	}
-	if(generateRxChecksum(RxServoId, RxError, ) != RxChecksum) {
+	if(generateRxChecksum(RxServoId, RxError, address, buffer, length) != RxChecksum) {
 		Error = 1;
 	}
 
