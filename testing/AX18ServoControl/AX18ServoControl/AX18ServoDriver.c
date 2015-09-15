@@ -47,7 +47,7 @@ unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned
 void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length) {
 
 	// Enable Uart Tx so we can send
-	UART1_CONTROL |= (1<<UART1_BIT_TXEN);
+	uart1_TxEnable();
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -61,6 +61,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 	}
 
 	uart1_putc(generateTxChecksum(id, address, data, length));
+	uart1_TxDisable();
 
 }
 
@@ -78,7 +79,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	uart1_clearRxBuffer();
 
 	// Enable Uart Tx so we can send
-	UART1_CONTROL |= (1<<UART1_BIT_TXEN);
+	uart1_TxEnable();
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -92,7 +93,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	uart1_putc(generateTxChecksum(id, AX_READ_DATA, address, /* x */, length));
 
 	// Disable Uart Tx for we can receive
-	UART1_CONTROL ~= (1<<UART1_BIT_TXEN);
+	uart1_TxDisable();
 
 	unsigned char RxState, RxDataCount, Error = 0;
 	unsigned char RxServoId, RxLength, RxError, RxChecksum;

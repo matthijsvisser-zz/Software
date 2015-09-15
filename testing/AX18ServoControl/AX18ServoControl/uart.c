@@ -796,5 +796,13 @@ int uart1_printChar(char character, FILE *stream)
   return 0;
 }
 
+inline void uart1_TxEnable(void) {
+  UART1_CONTROL |= (1<<UART1_BIT_TXEN);
+}
+
+inline void uart1_TxDisable(void) {
+  UART1_CONTROL ~= (1<<UART1_BIT_TXEN);
+}
+
 
 #endif
