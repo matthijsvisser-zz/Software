@@ -48,6 +48,7 @@ LICENSE:
  
 
 #include <avr/pgmspace.h>
+#include <stdio.h>
 
 #if (__GNUC__ * 100 + __GNUC_MINOR__) < 405
 #error "This library requires AVR-GCC 4.5 or later, update to newer AVR-GCC compiler !"

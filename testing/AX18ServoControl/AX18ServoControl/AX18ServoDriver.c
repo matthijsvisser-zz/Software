@@ -30,7 +30,7 @@ unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsign
 unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned char address, unsigned char *data, unsigned char length) {
 
 	unsigned char checksum = id + (length + 3) + error + AX_READ_DATA + address;
-	for(unsinged char i = 0; i < length; i+=) {
+	for(unsigned char i = 0; i < length; i+=) {
 		checksum += data[i];
 	}
 	return ~checksum;
@@ -95,7 +95,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	UART1_CONTROL ~= (1<<UART1_BIT_TXEN);
 
 	unsigned char RxState, RxDataCount, Error = 0;
-	unsigned char RxServoId, RxLength, RxError;
+	unsigned char RxServoId, RxLength, RxError, RxChecksum;
 
 	// Wait a couple of micro seconds to receive some data
 	_delay_us(TX_READ_DELAY_TIME);
@@ -160,8 +160,6 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	if(generateRxChecksum(RxServoId, RxError, ) != RxChecksum) {
 		Error = 1;
 	}
-
-	unsigned char id, unsigned char error, unsigned char address, unsigned char *data, unsigned char length
 
 	return Error;
 	
