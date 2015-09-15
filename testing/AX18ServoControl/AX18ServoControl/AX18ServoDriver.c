@@ -107,12 +107,15 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 		printf("READ (0x%x) STATE (%d)", c, RxState);
 
 		switch(RxState) {
+
+			// 1) First Start byte
 			case 0:
 				if(c == AX_START) {
 					RxState = 1;
 				}
 			break;
 
+			// 2) Second start byte
 			case 1:
 				if(c == AX_START) {
 					RxState = 2;
@@ -121,6 +124,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 				}
 			break;
 
+			// 3) Id byte
 			case 2:
 				if(c != AX_START) {
 					RxServoId = c;
@@ -131,16 +135,19 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 				}
 			break;
 
+			// 4) Length byte
 			case 3:
 				RxLength = c;
 				RxState = 4;
 			break;
 
+			// 5) Error byte
 			case 4:
 				RxError = c;
 				RxState = 5;
 			break;
 
+			// Data bytes and checksum byte
 			case 5:
 				if(RxDataCount > length) {
 					RxChecksum = c;
@@ -158,6 +165,8 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 
 		}
 	}
+
+	// Check if packet is correct by comparing the checksum
 	if(generateRxChecksum(RxServoId, RxError, address, buffer, length) != RxChecksum) {
 		Error = 1;
 	}
@@ -171,11 +180,12 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
  * @param id  Servo identifier
  * @param pos Goal position
  */
-void AX18Position(unsigned char id, unsigned long pos) {
+void AX18SetPosition(unsigned char id, unsigned long pos) {
 
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
+
 	AX18FWrite(BROADCAST_ID, AX_GOAL_POSITION_L, buffer, 2);
 }
 
@@ -184,12 +194,101 @@ void AX18Position(unsigned char id, unsigned long pos) {
  * @param id    Servo identifier
  * @param speed Speed
  */
-void AX18Speed(unsigned char id, unsigned long speed) {
+void AX18SetSpeed(unsigned char id, unsigned long speed) {
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(speed), 
 		unsigned16ToUnsigned8Higher(speed)};
 
 	AX18FWrite(id, AX_GOAL_SPEED_L, buffer, 2);
+}
+
+unsigned long AX18GetSpeed(unsigned char id) {
+
+	unsigned char buffer[2];
+	if(AX18FRead(id, AX_GOAL_SPEED_L, buffer, 2) == 0)
+		return 0;
+	return unsigned8ToUnsigned16(buffer[0], buffer[1]);
+
+}
+
+void AX18SetTorque(unsigned char id, unsigned long torque) {
+	unsigned char buffer[2] = {
+		unsigned16ToUnsigned8Lower(speed), 
+		unsigned16ToUnsigned8Higher(speed)};
+
+	AX18FWrite(id, AX_TORQUE_LIMIT_L, buffer, 2);
+}
+
+unsigned long AX18GetTorque(unsigned char id) {
+
+	unsigned char buffer[2];
+	if(AX18FRead(id, AX_MAX_TORQUE_L, buffer, 2) == 0)
+		return 0;
+	return unsigned8ToUnsigned16(buffer[0], buffer[1]);
+
+}
+
+void AX18SetLed(unsigned char id, unsigned char on) {
+	if(on == 0 || on == 1)
+		AX18FWrite(id, AX_LED, on, 1);
+}
+
+unsigned char AX18GetLed(unsigned char id) {
+	unsigned char buffer[1];
+	if(AX18FRead(id, AX_LED, buffer, 1) == 0)
+		return 0;
+	return buffer[0];
+}
+
+void AX18SetTorqueEnable(unsigned char id, unsigned char torqueEnable) {
+	if(torqueEnable == 0 || torqueEnable == 1)
+		AX18FWrite(id, AX_TORQUE_ENABLE, torqueEnable, 1);
+}
+
+unsigned char AX18GetTorqueEnable(unsigned char id) {
+	unsigned char buffer[1];
+	if(AX18FRead(id, AX_TORQUE_ENABLE, buffer, 1) == 0)
+		return 0;
+	return buffer[0];
+}
+
+void AX18SetID(unsigned char id, unsigned char newId) {
+		AX18FWrite(id, AX_ID, newId, 1);
+}
+
+unsigned char AX18GetId(unsigned char id) {
+	unsigned char buffer[1];
+	if(AX18FRead(id, AX_ID, buffer, 1) == 0)
+		return 0;
+	return buffer[0];
+}
+
+void AX18SetBaudRate(unsigned char id, unsigned long baudRate) {
+	unsigned char data = 2000000/baudRate-1
+	AX18FWrite(id, AX_BAUD_RATE, data, 1);
+}
+
+unsigned long AX18GetBaudRate(unsigned char id) {
+	unsigned char buffer[1];
+	if(AX18FRead(id, AX_BAUD_RATE, buffer, 1) == 0)
+		return 0;
+	return 2000000/(buffer[0] + 1);
+}
+
+void AX18SetAngleLimitCW(unsigned char id, unsigned long limit) {
+	unsigned char buffer[2] = {
+		unsigned16ToUnsigned8Lower(limit), 
+		unsigned16ToUnsigned8Higher(limit)};
+
+	AX18FWrite(id, AX_CW_ANGLE_LIMIT_L, buffer, 2);
+}
+
+void AX18SetAngleLimitCCW(unsigned char id, unsigned long limit) {
+	unsigned char buffer[2] = {
+		unsigned16ToUnsigned8Lower(limit), 
+		unsigned16ToUnsigned8Higher(limit)};
+
+	AX18FWrite(id, AX_CCW_ANGLE_LIMIT_L, buffer, 2);
 }
 
 /**
@@ -226,4 +325,12 @@ unsigned char unsigned16ToUnsigned8Lower(unsigned long data) {
  */
 unsigned char unsigned16ToUnsigned8Higher(unsigned long data) {
 	return (data >> 8) & 0xFF; 
+}
+
+unsigned long unsigned8ToUnsigned16(unsigned char lower, unsigned char higher) {
+	return (higher << 8) | lower;
+}
+
+signed long signed8Tosigned16(unsigned char lower, unsigned char higher) {
+	return (higher << 8) | lower;
 }
