@@ -2,28 +2,39 @@
 #include "AX18ServoDriver.h"
 
 /**
- * Generates checksum
+ * Generate checksum for Writing
  * @param  id      Servo identifier
  * @param  address Servo memory write address
  * @param  data    Data to write to memory
  * @param  length  Length of data
  * @return         Checksum
  */
-unsigned char generateTxChecksum(unsigned char id, unsigned char instruction, unsigned char address, unsigned char *data, unsigned length) {
+unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsigned char *data, unsigned length) {
 
-	unsigned char checksum = id + (length + 3) + instruction + address;
+	unsigned char checksum = id + (length + 3) + AX_WRITE_DATA + address;
 	for(unsigned char i = 0; i < length; i++) {
 		checksum += data[i];
 	}
 	return ~checksum;
 }
 
-unsigned char generateRxChecksum() {
+/**
+ * Generate checksum for Reading
+ * @param  id      Servo identifier
+ * @param  error   Error returned from Servo
+ * @param  address Servo memory read address
+ * @param  data    received data
+ * @param  length  length of received data
+ * @return         checksum
+ */
+unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned char address, unsigned char *data, unsigned char length) {
 
-	/* Check Sum = ~ ( ID + Length + Error + Parameter1 + … Parameter N ) */
+	unsigned char checksum = id + (length + 3) + error + AX_READ_DATA + address;
+	for(unsinged char i = 0; i < length; i+=) {
+		checksum += data[i];
+	}
+	return ~checksum;
 }
-
-/* Check Sum = ~ ( ID + Length + Error + Parameter1 + … Parameter N ) */
 
 
 /**
@@ -49,7 +60,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 		uart1_putc(data[i]);
 	}
 
-	uart1_putc(generateTxChecksum(id, AX_WRITE_DATA, address, data, length));
+	uart1_putc(generateTxChecksum(id, address, data, length));
 
 }
 
@@ -59,7 +70,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
  * @param address Servo memory read address
  * @param buffer  Buffer to save data
  * @param length  Length to read
- * @return        	Error occurred, return 0 on success, 1 on error
+ * @return        Error occurred, return 0 on success, 1 on error
  */
 unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *buffer, unsigned char length) {
 
@@ -92,6 +103,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	// Loop trough all received bytes
 	while(uart1_canRead() > 0) {
 		char c = uart1_getc();
+		printf("READ (0x%x) STATE (%d)", c, RxState);
 
 		switch(RxState) {
 			case 0:
@@ -101,26 +113,37 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 			break;
 
 			case 1:
-				if(c != AX_START) {
-					RxServoId = c;
+				if(c == AX_START) {
 					RxState = 2;
+				} else {
+					RxState = 0;
 				}
 			break;
 
 			case 2:
-				RxLength = c;
-				RxState = 3;
+				if(c != AX_START) {
+					RxServoId = c;
+					RxState = 3;
+				} else {
+					RxState = 0;
+					Error = 1;
+				}
 			break;
 
 			case 3:
-				RxError = c;
+				RxLength = c;
 				RxState = 4;
 			break;
 
 			case 4:
+				RxError = c;
+				RxState = 5;
+			break;
+
+			case 5:
 				if(RxDataCount > length) {
 					RxChecksum = c;
-					RxState = 5;
+					RxState = 6;
 					break;
 				}
 
@@ -128,15 +151,17 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 			break;
 
 			// There is no state 5 unless we got more data then expected...
-			case 5:
+			case 6:
 				Error = 1;
 			break;
 
 		}
 	}
-	if(generateRxChecksum() != RxChecksum) {
+	if(generateRxChecksum(RxServoId, RxError, ) != RxChecksum) {
 		Error = 1;
 	}
+
+	unsigned char id, unsigned char error, unsigned char address, unsigned char *data, unsigned char length
 
 	return Error;
 	

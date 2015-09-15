@@ -553,6 +553,13 @@ void uart_puts(const char *s )
 
 }/* uart_puts */
 
+int uart_printChar(char character, FILE *stream)
+{
+  uart_putc(character);
+
+  return 0;
+}
+
 
 /*************************************************************************
 Function: uart_puts_p()
@@ -781,6 +788,13 @@ void uart1_puts_p(const char *progmem_s )
       uart1_putc(c);
 
 }/* uart1_puts_p */
+
+int uart1_printChar(char character, FILE *stream)
+{
+  uart_putc(character);
+
+  return 0;
+}
 
 
 #endif

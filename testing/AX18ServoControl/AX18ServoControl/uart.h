@@ -180,6 +180,9 @@ extern void uart_puts(const char *s );
  */
 extern void uart_puts_p(const char *s );
 
+extern int uart_printChar(char character, FILE *stream);
+extern int uart1_printChar(char character, FILE *stream);
+
 /**
  * @brief    Macro to automatically put a string constant into program memory
  */

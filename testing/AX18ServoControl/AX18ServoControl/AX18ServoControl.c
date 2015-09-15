@@ -4,17 +4,17 @@
 
 #define UART_BAUD_RATE 1000000
 
-
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdio.h>
 
 #include "AX18ServoDriver.h"
 #include "IOPorts_ATMega.h"
 #include "uart.h"
 
+FILE uartFileStream = FDEV_SETUP_STREAM(uart1_printChar, NULL, _FDEV_SETUP_RW);
 
 int main(void)
 {
