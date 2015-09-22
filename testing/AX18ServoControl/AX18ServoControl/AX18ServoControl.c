@@ -15,25 +15,34 @@
 #include "IOPorts_ATMega.h"
 #include "uart.h"
 
-FILE uartFileStream = FDEV_SETUP_STREAM(uart1_printChar, NULL, _FDEV_SETUP_RW);
+FILE uartFileStream = FDEV_SETUP_STREAM(uart_printChar, NULL, _FDEV_SETUP_RW);
+
 
 int main(void)
 {
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
+	stdout = &uartFileStream;
 	DDRB = 0xFF;
-
+	
+	// TX
+	DDRD = PIN1_bm | PIN3_bm;
+	
 	sei();
-	AX18Speed(BROADCAST_ID, 150);
+	printf("iets1\r\n");
+	AX18SetSpeed(BROADCAST_ID, 250);
 	while(1) //infinite loop
 	{
 		
-		
-		AX18Position(BROADCAST_ID, 0);
-		_delay_ms(10000);
-		AX18Position(BROADCAST_ID, 1023);
-		//AX18Position(BROADCAST_ID, 50);
-		_delay_ms(10000);		
+		uart_puts("sanda");
+		printf("iets2\r\n");
+		//AX18SetPosition(55, 600);
+		//_delay_ms(1000);
+		//AX18SetPosition(55, 500);
+		_delay_ms(1000);	
+		char buffer[2];
+		AX18FRead(55, AX_PRESENT_POSITION_L, buffer, 2);	
+		printf("Read 0x%x 0 0x%x\r\n", buffer[0], buffer[1]);
 	}
 	
 	return 0;

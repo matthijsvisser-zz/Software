@@ -1,4 +1,3 @@
-#include "uart.h"
 #include "AX18ServoDriver.h"
 
 /**
@@ -11,10 +10,16 @@
  */
 unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsigned char *data, unsigned length) {
 
-	unsigned char checksum = id + (length + 3) + AX_WRITE_DATA + address;
+	unsigned char checksum = id + (length + 1) + AX_WRITE_DATA + address;
 	for(unsigned char i = 0; i < length; i++) {
 		checksum += data[i];
 	}
+	return ~checksum;
+}
+
+unsigned char generateRxRequestChecksum(unsigned char id, unsigned char length, unsigned char address) {
+
+	unsigned char checksum = id + length + AX_READ_DATA + address;
 	return ~checksum;
 }
 
@@ -48,6 +53,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 
 	// Enable Uart Tx so we can send
 	uart1_TxEnable();
+	uart1_RxDisable();
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -62,7 +68,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 
 	uart1_putc(generateTxChecksum(id, address, data, length));
 	uart1_TxDisable();
-
+	uart1_RxEnable();
 }
 
 /**
@@ -80,29 +86,46 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 
 	// Enable Uart Tx so we can send
 	uart1_TxEnable();
+	uart1_RxDisable();
+	
+// 	uart1_putc(AX_START);
+// 	uart1_putc(AX_START);
+// 	uart1_putc(id);
+// 	uart1_putc(3);
+// 	uart1_putc(AX_READ_DATA);
+// 	uart1_putc(address);
+	uart1_putc(0xff);
+	uart1_putc(0xff);
+	uart1_putc(0x1);
+	uart1_putc(0x4);
+	uart1_putc(0x2);
+	uart1_putc(0x0);
+	uart1_putc(0x3);
+	uart1_putc(0xf5);
+	uart1_RxEnable();
 
-	uart1_putc(AX_START);
-	uart1_putc(AX_START);
-	uart1_putc(id);
-	uart1_putc(length + 3);
-	uart1_putc(AX_READ_DATA);
-	uart1_putc(address);
-	uart1_putc(length);
+
+	printf("READ: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\r\n", AX_START, AX_START, id, 3, AX_READ_DATA, address, generateRxRequestChecksum(id, 3, address));
 
 
-	uart1_putc(generateTxChecksum(id, AX_READ_DATA, address, length));
+	uart1_putc(generateRxRequestChecksum(id, 3, address));
 
 	// Disable Uart Tx for we can receive
 	uart1_TxDisable();
-
+	uart1_RxEnable();
+	
+	uart1_clearRxBuffer();
+	
 	unsigned char RxState, RxDataCount, Error = 0;
 	unsigned char RxServoId, RxLength, RxError, RxChecksum;
 
 	// Wait a couple of micro seconds to receive some data
+	_delay_ms(50);
 	_delay_us(TX_READ_DELAY_TIME);
 
 	// Loop trough all received bytes
 	while(uart1_canRead() > 0) {
+		printf("Buffer size: %d\r\n", uart1_canRead());
 		char c = uart1_getc();
 		printf("READ (0x%x) STATE (%d)", c, RxState);
 
@@ -185,6 +208,7 @@ void AX18SetPosition(unsigned char id, unsigned long pos) {
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
+	printf("Set position: %d (0x%x, 0x%x)\r\n", pos, buffer[0], buffer[1]);
 
 	AX18FWrite(BROADCAST_ID, AX_GOAL_POSITION_L, buffer, 2);
 }
@@ -213,8 +237,8 @@ unsigned long AX18GetSpeed(unsigned char id) {
 
 void AX18SetTorque(unsigned char id, unsigned long torque) {
 	unsigned char buffer[2] = {
-		unsigned16ToUnsigned8Lower(speed), 
-		unsigned16ToUnsigned8Higher(speed)};
+		unsigned16ToUnsigned8Lower(torque), 
+		unsigned16ToUnsigned8Higher(torque)};
 
 	AX18FWrite(id, AX_TORQUE_LIMIT_L, buffer, 2);
 }
@@ -264,7 +288,7 @@ unsigned char AX18GetId(unsigned char id) {
 }
 
 void AX18SetBaudRate(unsigned char id, unsigned long baudRate) {
-	unsigned char data = 2000000/baudRate-1
+	unsigned char data = 2000000/baudRate-1;
 	AX18FWrite(id, AX_BAUD_RATE, data, 1);
 }
 

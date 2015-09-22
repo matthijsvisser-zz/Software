@@ -204,11 +204,13 @@ extern void uart1_puts_p(const char *s );
 
 extern inline void uart1_TxEnable(void);
 extern inline void uart1_TxDisable(void);
+extern inline void uart1_RxEnable(void);
+extern inline void uart1_RxDisable(void);
+
+
 /** @brief  Macro to automatically put a string constant into program memory */
 #define uart1_puts_P(__s)       uart1_puts_p(PSTR(__s))
 
 /**@}*/
 
-
 #endif // UART_H 
-

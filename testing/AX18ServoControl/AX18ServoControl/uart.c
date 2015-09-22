@@ -692,7 +692,7 @@ void uart1_init(unsigned int baudrate)
 }/* uart_init */
 
 unsigned int uart1_canRead(void) {
-  return (( UART_RxHead + 1) & UART_RX_BUFFER_MASK) - UART_RxTail;
+  return (( UART1_RxHead + 1) & UART_RX_BUFFER_MASK) - UART1_RxTail - 1;
 }
 
 void uart1_clearRxBuffer(void) {
@@ -797,11 +797,24 @@ int uart1_printChar(char character, FILE *stream)
 }
 
 inline void uart1_TxEnable(void) {
-  UART1_CONTROL |= (1<<UART1_BIT_TXEN);
+	UART1_CONTROL |= (1<<UART1_BIT_TXEN);
+  
 }
 
 inline void uart1_TxDisable(void) {
-  UART1_CONTROL = ~(UART1_CONTROL | (1<<UART1_BIT_TXEN));
+  
+	UART1_CONTROL &= ~(1<<UART1_BIT_TXEN); 
+}
+
+
+inline void uart1_RxEnable(void) {
+	UART1_CONTROL |= (1<<UART1_BIT_RXEN);
+	
+}
+
+inline void uart1_RxDisable(void) {
+	
+	UART1_CONTROL &= ~(1<<UART1_BIT_RXEN);
 }
 
 

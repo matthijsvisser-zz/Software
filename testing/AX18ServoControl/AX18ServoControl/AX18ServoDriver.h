@@ -1,3 +1,7 @@
+#include <util/delay.h>
+
+#include "uart.h"
+
        // EEPROM AREA  ///////////////////////////////////////////////////////////
 #define AX_MODEL_NUMBER_L           0x00
 #define AX_MODEL_NUMBER_H           0x01
@@ -103,7 +107,10 @@
 #define TX_READ_DELAY_TIME			12			          // 12 delay is relerative to Baudrate, slow speed more delay is needed
 
 void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length);
-void AX18Position(unsigned char id, unsigned long pos);
-void AX18Speed(unsigned char id, unsigned long speed);
+unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *buffer, unsigned char length);
 unsigned char unsigned16ToUnsigned8Lower(unsigned long data);
 unsigned char unsigned16ToUnsigned8Higher(unsigned long data);
+unsigned long unsigned8ToUnsigned16(unsigned char lower, unsigned char higher);
+signed long signed8Tosigned16(unsigned char lower, unsigned char higher);
+void AX18SetPosition(unsigned char id, unsigned long pos);
+void AX18SetSpeed(unsigned char id, unsigned long speed);
