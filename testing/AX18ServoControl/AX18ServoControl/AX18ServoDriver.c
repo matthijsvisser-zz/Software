@@ -10,7 +10,7 @@
  */
 unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsigned char *data, unsigned length) {
 
-	unsigned char checksum = id + (length + 1) + AX_WRITE_DATA + address;
+	unsigned char checksum = id + (length + 3) + AX_WRITE_DATA + address;
 	for(unsigned char i = 0; i < length; i++) {
 		checksum += data[i];
 	}
@@ -19,7 +19,8 @@ unsigned char generateTxChecksum(unsigned char id, unsigned char address, unsign
 
 unsigned char generateRxRequestChecksum(unsigned char id, unsigned char length, unsigned char address) {
 
-	unsigned char checksum = id + length + AX_READ_DATA + address;
+	unsigned char checksum = id + 4 + AX_READ_DATA + length +address;
+
 	return ~checksum;
 }
 
@@ -83,49 +84,37 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	// Clear Rx buffer so we can receive fresh data
 	uart1_clearRxBuffer();
 
+	unsigned char checksum = generateRxRequestChecksum(id, length, address);
+	
 	// Enable Uart Tx so we can send
 	uart1_TxEnable();
 	uart1_RxDisable();
 	
-// 	uart1_putc(AX_START);
-// 	uart1_putc(AX_START);
-// 	uart1_putc(id);
-// 	uart1_putc(3);
-// 	uart1_putc(AX_READ_DATA);
-// 	uart1_putc(address);
-	uart1_putc(0xff);
-	uart1_putc(0xff);
-	uart1_putc(0x1);
-	uart1_putc(0x4);
-	uart1_putc(0x2);
-	uart1_putc(0x0);
-	uart1_putc(0x3);
-	uart1_putc(0xf5);
-	uart1_RxEnable();
-
-
-	printf("READ: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\r\n", AX_START, AX_START, id, 3, AX_READ_DATA, address, generateRxRequestChecksum(id, 3, address));
-
-
-	uart1_putc(generateRxRequestChecksum(id, 3, address));
-
-	// Disable Uart Tx for we can receive
+	uart1_putc(AX_START);
+	uart1_putc(AX_START);
+	uart1_putc(id);
+	uart1_putc(4);
+	uart1_putc(AX_READ_DATA);
+	uart1_putc(address);
+	uart1_putc(length);
+	uart1_putc(checksum);
+	
+	while(!uart1_bufferIsEmpty());
+	_delay_us(100);
+	
 	uart1_TxDisable();
 	uart1_RxEnable();
-	
 	uart1_clearRxBuffer();
-	
+
+	_delay_us(TX_READ_DELAY_TIME);
 	unsigned char RxState = 0, RxDataCount = 0, RxServoId = 0, RxLength = 0, RxError = 0, RxChecksum = 0, Error = 0;
 
 	// Wait a couple of micro seconds to receive some data
-	_delay_ms(50);
-	_delay_us(TX_READ_DELAY_TIME);
-
 	// Loop trough all received bytes
 	while(uart1_canRead() > 0) {
-		printf("Buffer size: %d\r\n", uart1_canRead());
+		//printf("Buffer size: %d\r\n", uart1_canRead());
 		char c = uart1_getc();
-		printf("READ (0x%x) STATE (%d)", c, RxState);
+		//printf("READ (0x%x) STATE (%d)\r\n", c, RxState);
 
 		switch(RxState) {
 
@@ -170,7 +159,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 
 			// Data bytes and checksum byte
 			case 5:
-				if(RxDataCount > RxLength) {
+				if(RxDataCount >= RxLength - 2) {
 					RxChecksum = c;
 					RxState = 6;
 					break;
@@ -179,7 +168,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 				buffer[RxDataCount++] = c;
 			break;
 
-			// There is no state 5 unless we got more data then expected...
+			// There is no state 6 unless we got more data then expected...
 			case 6:
 				Error = 1;
 			break;
@@ -283,6 +272,11 @@ unsigned char AX18GetId(unsigned char id) {
 	if(AX18FRead(id, AX_ID, buffer, 1) == 0)
 		return 0;
 	return buffer[0];
+}
+
+void AX18SetReturnDelayTime(unsigned char id, unsigned long delay) {
+	unsigned char data = delay / 2;
+	AX18FWrite(id, AX_RETURN_DELAY_TIME, &data, 1);
 }
 
 void AX18SetBaudRate(unsigned char id, unsigned long baudRate) {

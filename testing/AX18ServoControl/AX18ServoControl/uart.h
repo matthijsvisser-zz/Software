@@ -204,6 +204,7 @@ extern void uart1_puts_p(const char *s );
 
 extern unsigned int uart1_canRead(void);
 extern void uart1_clearRxBuffer(void);
+extern unsigned char uart1_bufferIsEmpty(void);
 extern void uart1_TxEnable(void);
 extern void uart1_TxDisable(void);
 extern void uart1_RxEnable(void);

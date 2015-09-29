@@ -108,7 +108,7 @@
 #define READ_TIME_OUT				2
 #define TX_DELAY_TIME				12			          // 12  delay is relerative to Baudrate, slow speed more delay is needed
 #define TX_BD_DELAY_TIME			500
-#define TX_READ_DELAY_TIME			12			          // 12 delay is relerative to Baudrate, slow speed more delay is needed
+#define TX_READ_DELAY_TIME			1000			          // 12 delay is relerative to Baudrate, slow speed more delay is needed
 
 void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length);
 unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *buffer, unsigned char length);

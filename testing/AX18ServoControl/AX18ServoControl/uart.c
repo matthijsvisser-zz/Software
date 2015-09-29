@@ -540,6 +540,10 @@ void uart_putc(unsigned char data)
 }/* uart_putc */
 
 
+
+
+
+
 /*************************************************************************
 Function: uart_puts()
 Purpose:  transmit string to UART
@@ -794,6 +798,11 @@ int uart1_printChar(char character, FILE *stream)
   uart_putc(character);
 
   return 0;
+}
+
+unsigned char uart1_bufferIsEmpty(void) {
+	
+	return UART_TxHead == UART_TxTail;
 }
 
 void uart1_TxEnable(void) {
