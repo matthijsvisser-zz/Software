@@ -23,26 +23,22 @@ int main(void)
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	stdout = &uartFileStream;
-	DDRB = 0xFF;
-	
-	// TX
-	DDRD = PIN1_bm | PIN3_bm;
-	
+
+
 	sei();
-	printf("iets1\r\n");
+	
 	AX18SetSpeed(BROADCAST_ID, 250);
 	while(1) //infinite loop
 	{
+		AX18SetPosition(BROADCAST_ID, 200);
+		_delay_ms(1000);
+		AX18SetPosition(BROADCAST_ID, 800);
+		_delay_ms(1000);
 		
-		uart_puts("sanda");
-		printf("iets2\r\n");
-		//AX18SetPosition(55, 600);
-		//_delay_ms(1000);
-		//AX18SetPosition(55, 500);
-		_delay_ms(1000);	
-		char buffer[2];
-		AX18FRead(55, AX_PRESENT_POSITION_L, buffer, 2);	
-		printf("Read 0x%x 0 0x%x\r\n", buffer[0], buffer[1]);
+		//_delay_ms(1000);	
+		//char buffer[2];
+		//AX18FRead(55, AX_PRESENT_POSITION_L, buffer, 2);	
+		//printf("Read 0x%x 0 0x%x\r\n", buffer[0], buffer[1]);
 	}
 	
 	return 0;

@@ -52,8 +52,8 @@ unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned
 void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length) {
 
 	// Enable Uart Tx so we can send
-	uart1_TxEnable();
-	uart1_RxDisable();
+	//uart1_TxEnable();
+	//uart1_RxDisable();
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -67,8 +67,7 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 	}
 
 	uart1_putc(generateTxChecksum(id, address, data, length));
-	uart1_TxDisable();
-	uart1_RxEnable();
+	//uart1_TxDisable();
 }
 
 /**
@@ -116,8 +115,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	
 	uart1_clearRxBuffer();
 	
-	unsigned char RxState, RxDataCount, Error = 0;
-	unsigned char RxServoId, RxLength, RxError, RxChecksum;
+	unsigned char RxState = 0, RxDataCount = 0, RxServoId = 0, RxLength = 0, RxError = 0, RxChecksum = 0, Error = 0;
 
 	// Wait a couple of micro seconds to receive some data
 	_delay_ms(50);
@@ -172,7 +170,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 
 			// Data bytes and checksum byte
 			case 5:
-				if(RxDataCount > length) {
+				if(RxDataCount > RxLength) {
 					RxChecksum = c;
 					RxState = 6;
 					break;
@@ -208,9 +206,9 @@ void AX18SetPosition(unsigned char id, unsigned long pos) {
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
-	printf("Set position: %d (0x%x, 0x%x)\r\n", pos, buffer[0], buffer[1]);
+	printf("Set position: %d (0x%x, 0x%x)\r\n", (int)pos, buffer[0], buffer[1]);
 
-	AX18FWrite(BROADCAST_ID, AX_GOAL_POSITION_L, buffer, 2);
+	AX18FWrite(id, AX_GOAL_POSITION_L, buffer, 2);
 }
 
 /**
@@ -254,7 +252,7 @@ unsigned long AX18GetTorque(unsigned char id) {
 
 void AX18SetLed(unsigned char id, unsigned char on) {
 	if(on == 0 || on == 1)
-		AX18FWrite(id, AX_LED, on, 1);
+		AX18FWrite(id, AX_LED, &on, 1);
 }
 
 unsigned char AX18GetLed(unsigned char id) {
@@ -266,7 +264,7 @@ unsigned char AX18GetLed(unsigned char id) {
 
 void AX18SetTorqueEnable(unsigned char id, unsigned char torqueEnable) {
 	if(torqueEnable == 0 || torqueEnable == 1)
-		AX18FWrite(id, AX_TORQUE_ENABLE, torqueEnable, 1);
+		AX18FWrite(id, AX_TORQUE_ENABLE, &torqueEnable, 1);
 }
 
 unsigned char AX18GetTorqueEnable(unsigned char id) {
@@ -277,7 +275,7 @@ unsigned char AX18GetTorqueEnable(unsigned char id) {
 }
 
 void AX18SetID(unsigned char id, unsigned char newId) {
-		AX18FWrite(id, AX_ID, newId, 1);
+		AX18FWrite(id, AX_ID, &newId, 1);
 }
 
 unsigned char AX18GetId(unsigned char id) {
@@ -289,7 +287,7 @@ unsigned char AX18GetId(unsigned char id) {
 
 void AX18SetBaudRate(unsigned char id, unsigned long baudRate) {
 	unsigned char data = 2000000/baudRate-1;
-	AX18FWrite(id, AX_BAUD_RATE, data, 1);
+	AX18FWrite(id, AX_BAUD_RATE, &data, 1);
 }
 
 unsigned long AX18GetBaudRate(unsigned char id) {
