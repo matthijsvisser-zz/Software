@@ -815,6 +815,18 @@ void uart1_TxDisable(void) {
 	UART1_CONTROL &= ~(1<<UART1_BIT_TXEN); 
 }
 
+void uart1_TxWaitDisable(void) {
+	
+	// Wait for FIFO to be empty
+	while(!uart1_bufferIsEmpty());
+	
+	// Wait for last byte to be snd
+	while(UCSR1A & TXC1);
+	
+	// Disable Tx
+	uart1_TxDisable();
+}
+
 
 void uart1_RxEnable(void) {
 	UART1_CONTROL |= (1<<UART1_BIT_RXEN);

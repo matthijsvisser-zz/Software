@@ -118,3 +118,6 @@ unsigned long unsigned8ToUnsigned16(unsigned char lower, unsigned char higher);
 signed long signed8Tosigned16(unsigned char lower, unsigned char higher);
 void AX18SetPosition(unsigned char id, unsigned long pos);
 void AX18SetSpeed(unsigned char id, unsigned long speed);
+void AX18SetID(unsigned char id, unsigned char newId);
+void AX18SetReturnDelayTime(unsigned char id, unsigned long delay);
+unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *buffer, unsigned char length);

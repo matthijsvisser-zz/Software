@@ -207,6 +207,7 @@ extern void uart1_clearRxBuffer(void);
 extern unsigned char uart1_bufferIsEmpty(void);
 extern void uart1_TxEnable(void);
 extern void uart1_TxDisable(void);
+extern void uart1_TxWaitDisable(void);
 extern void uart1_RxEnable(void);
 extern void uart1_RxDisable(void);
 
