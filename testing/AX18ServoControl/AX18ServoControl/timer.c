@@ -45,11 +45,12 @@ unsigned long diffTimer0(void) {
 		Dtime = getTick() - diffTimeCnt0;
 	}
 	
-	
-	diffTimeCnt0 = getTick();
-	diffOFCount0 = timerOverflows;
-	
 	return Dtime;
+}
+
+void resetDiffTimer0(void) {
+		diffTimeCnt0 = getTick();
+		diffOFCount0 = timerOverflows;
 }
 
 // returns differential ticks since last call
@@ -63,11 +64,12 @@ unsigned long diffTimer1(void) {
 		Dtime = getTick() - diffTimeCnt1;
 	}
 	
-	
+	return Dtime;
+}
+
+void resetDiffTimer1(void) {
 	diffTimeCnt1 = getTick();
 	diffOFCount1 = timerOverflows;
-	
-	return Dtime;
 }
 
 // returns differential ticks since last call

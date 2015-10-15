@@ -36,6 +36,10 @@ LICENSE:
     GNU General Public License for more details.
                         
 *************************************************************************/
+#ifndef F_CPU
+#define F_CPU 16000000UL // 16 MHz clock speed
+#endif
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -45,6 +49,8 @@ LICENSE:
 /*
  *  constants and macros
  */
+
+
 
 /* size of RX/TX buffers */
 #define UART_RX_BUFFER_MASK ( UART_RX_BUFFER_SIZE - 1)
@@ -580,6 +586,10 @@ void uart_puts_p(const char *progmem_s )
 
 }/* uart_puts_p */
 
+unsigned int uart_canRead(void) {
+	return (( UART_RxHead + 1) & UART_RX_BUFFER_MASK) - UART_RxTail - 1;
+}
+
 
 /*
  * these functions are only for ATmegas with two USART
@@ -700,9 +710,15 @@ unsigned int uart1_canRead(void) {
 }
 
 void uart1_clearRxBuffer(void) {
-  UART1_RxHead = 0;
-  UART1_RxTail = 0;
+	UART1_RxHead = 0;
+	UART1_RxTail = 0;
 }
+
+void uart1_clearTxBuffer(void) {
+	UART1_TxHead = 0;
+	UART1_TxTail = 0;
+}
+
 
 
 /*************************************************************************
@@ -820,8 +836,10 @@ void uart1_TxWaitDisable(void) {
 	// Wait for FIFO to be empty
 	while(!uart1_bufferIsEmpty());
 	
-	// Wait for last byte to be snd
+	// Wait for last byte to be send
 	while(UCSR1A & TXC1);
+	
+	_delay_us(100);
 	
 	// Disable Tx
 	uart1_TxDisable();

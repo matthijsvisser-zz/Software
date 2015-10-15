@@ -53,8 +53,9 @@ unsigned char generateRxChecksum(unsigned char id, unsigned char error, unsigned
 void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, unsigned char length) {
 
 	// Enable Uart Tx so we can send
-	//uart1_TxEnable();
-	//uart1_RxDisable();
+	uart1_RxDisable();
+	uart1_clearTxBuffer();
+	uart1_TxEnable();
 
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -68,7 +69,51 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
 	}
 
 	uart1_putc(generateTxChecksum(id, address, data, length));
-	//uart1_TxDisable();
+	//_delay_us(500);
+	uart1_TxWaitDisable();
+}
+
+void AX18FSyncWrite(unsigned char *ids, unsigned char numIds, unsigned char startAddress, unsigned char *data, unsigned char length) {
+	
+	unsigned char checksum = 0; // = ~ ( ID + Length + Instruction + Parameter1 + … Parameter N )
+	// Enable Uart Tx so we can send
+	uart1_RxDisable();
+	uart1_clearTxBuffer();
+	uart1_TxEnable();
+	
+	uart1_putc(AX_START);
+	uart1_putc(AX_START);
+	
+	uart1_putc(BROADCAST_ID);
+	checksum += BROADCAST_ID;
+	
+	unsigned char totalLength = (length+1) * numIds + 4; // (L+1) X N + 4   (L: Data Length per RX-64, N: the number of RX-64s)
+	uart1_putc(totalLength); 
+	checksum += totalLength;
+	
+	
+	uart1_putc(AX_SYNC_WRITE);
+	checksum += AX_SYNC_WRITE;
+	
+	uart1_putc(startAddress);
+	checksum += startAddress;
+	
+	uart1_putc(length);
+	checksum += length;
+	
+	
+	for(int i = 0; i < numIds;i++) {
+		uart1_putc(ids[i]);
+		checksum += ids[i];
+		for(int b = 0; b < length; b++) {
+			uart1_putc(data[b]);
+			checksum += data[b];
+		}
+	}
+	checksum = ~checksum;
+	uart1_putc(checksum);
+
+	uart1_TxWaitDisable();
 }
 
 /**
@@ -81,14 +126,16 @@ void AX18FWrite(unsigned char id, unsigned char address, unsigned char *data, un
  */
 unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *buffer, unsigned char length) {
 
-	// Clear Rx buffer so we can receive fresh data
-	uart1_clearRxBuffer();
+	
 
 	unsigned char checksum = generateRxRequestChecksum(id, length, address);
 	
 	// Enable Uart Tx so we can send
+	uart1_clearTxBuffer();
 	uart1_TxEnable();
 	uart1_RxDisable();
+	
+	
 	
 	uart1_putc(AX_START);
 	uart1_putc(AX_START);
@@ -98,24 +145,25 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	uart1_putc(address);
 	uart1_putc(length);
 	uart1_putc(checksum);
-	
-	while(!uart1_bufferIsEmpty());
-	_delay_us(100);
-	
-	uart1_TxDisable();
-	uart1_RxEnable();
-	uart1_clearRxBuffer();
 
-	_delay_us(TX_READ_DELAY_TIME);
+	
+	uart1_TxWaitDisable();
+	uart1_RxEnable(); // TEMP
+	
+	// Wait for response
+	while(uart1_canRead() <= 0);
+	
+
+
+	//_delay_us(TX_READ_DELAY_TIME);
 	unsigned char RxState = 0, RxDataCount = 0, RxServoId = 0, RxLength = 0, RxError = 0, RxChecksum = 0, Error = 0;
 
 	// Wait a couple of micro seconds to receive some data
 	// Loop trough all received bytes
 	while(uart1_canRead() > 0) {
-		//printf("Buffer size: %d\r\n", uart1_canRead());
+		//printf("Buffer size: %d\r\n", uart1_canRead())
 		char c = uart1_getc();
-		//printf("READ (0x%x) STATE (%d)\r\n", c, RxState);
-
+	printf("Got (%d): 0x%x\r\n", RxState, c);
 		switch(RxState) {
 
 			// 1) First Start byte
@@ -164,7 +212,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 					RxState = 6;
 					break;
 				}
-
+				printf("Data (%d): 0x%x\r\n", RxDataCount, c);
 				buffer[RxDataCount++] = c;
 			break;
 
@@ -180,6 +228,8 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	if(generateRxChecksum(RxServoId, RxError, address, buffer, length) != RxChecksum) {
 		Error = 1;
 	}
+	
+	printf("error: 0x%x\r\n", RxError);
 
 	return Error;
 	
@@ -224,8 +274,21 @@ unsigned long AX18GetSpeed(unsigned char id) {
 
 void AX18SetTorque(unsigned char id, unsigned long torque) {
 	unsigned char buffer[2] = {
-		unsigned16ToUnsigned8Lower(torque), 
+		unsigned16ToUnsigned8Lower(torque),
+	unsigned16ToUnsigned8Higher(torque)};
+	
+	printf("Torque set to: %d (0x%x, 0x%x)\r\n", (int) torque, buffer[0], buffer[1]);
+
+	AX18FWrite(id, AX_MAX_TORQUE_L, buffer, 2);
+}
+
+void AX18SetTorqueLimit(unsigned char id, unsigned long torque) {
+	unsigned char buffer[2] = {
+		unsigned16ToUnsigned8Lower(torque),
 		unsigned16ToUnsigned8Higher(torque)};
+	
+	
+	printf("Torque limit set to: %d (0x%x, 0x%x)\r\n", (int) torque, buffer[0], buffer[1]);
 
 	AX18FWrite(id, AX_TORQUE_LIMIT_L, buffer, 2);
 }

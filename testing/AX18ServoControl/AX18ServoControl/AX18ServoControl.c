@@ -3,6 +3,7 @@
 #endif
 
 #define UART_BAUD_RATE 1000000
+#define UART_BAUD_RATE_XBEE 38400
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -14,6 +15,7 @@
 #include "AX18ServoDriver.h"
 #include "IOPorts_ATMega.h"
 #include "uart.h"
+#include "timer.h"
 
 FILE uartFileStream = FDEV_SETUP_STREAM(uart_printChar, NULL, _FDEV_SETUP_RW);
 
@@ -21,46 +23,69 @@ FILE uartFileStream = FDEV_SETUP_STREAM(uart_printChar, NULL, _FDEV_SETUP_RW);
 int main(void)
 {
 	
-	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
+	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE_XBEE,F_CPU));
 	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
-	
 	stdout = &uartFileStream;
-	
+		
 	sei();
+	printf("__RESTART__\r\n");
+
+// 	AX18SetID(BROADCAST_ID, 55);
+// 	//AX18SetReturnDelayTime(55, 1);
+// 	
+//AX18SetSpeed(55, 100);
+
+AX18SetTorque(55, 1023);
+_delay_ms(50);
 	
-// 	for(int32_t baud  = 0; baud < 0xFE; baud++) {
-// 		int32_t baudRate = 2000000/(baud+1);
-// 		uart1_init(UART_BAUD_SELECT(baudRate,F_CPU));
-// 		AX18SetBaudRate(BROADCAST_ID, 1000000);
-// 		//printf("Baudrate tried: %ld\r\n", baudRate);
-// 		_delay_ms(100);
-// 		
-// 	}
-// 	printf("Finished baud rate is set to 1000000");
-// 	while(1);
-	AX18SetID(BROADCAST_ID, 55);
-	AX18SetReturnDelayTime(55, 1);
+	unsigned long setTorque;// = AX18GetTorque(55);
 	
-	AX18SetSpeed(55, 250);
+			unsigned char buffer[2];
+			AX18FRead(55, AX_MAX_TORQUE_L, buffer, 2);
+
+			setTorque = unsigned8ToUnsigned16(buffer[0], buffer[1]);
+
+			printf("Received torque limit: %d\r\n", (int) setTorque);
+	
+	
+	unsigned char direction = 0;
+	
+	startTickTimer();
+	
+	unsigned long pos = 1000;
+	
+	uint32_t count = 0;
+	
 	while(1) //infinite loop
 	{
-		//printf("I am alive");
-		//uart1_puts("Hallo");	
-// 		uart1_RxDisable();
-// 		uart1_TxEnable();
-// 		_delay_ms(10);
-// 		uart1_TxDisable();
-// 		uart1_RxEnable();
-// 		_delay_ms(10);
-		AX18SetPosition(55, (unsigned long) 800);
-		
-// 		_delay_ms(1000);	
- 		char buffer[2];
- 		AX18FRead(55, AX_PRESENT_POSITION_L, buffer, 2);
-		unsigned long pos = unsigned8ToUnsigned16(buffer[0], buffer[1]);
-		printf("POS: %d\r\n", pos);
-		_delay_ms(50);
+		printf("CNT: %d\r\n", count++);
+		_delay_ms(20);
+
 	}
 	
+	stopTickTimer();
 	return 0;
 }
+
+// 		if((direction==0 && pos > 990) || (direction==1 && pos < 310)) {
+// 			//resetDiffTimer0();
+//
+// 			if(direction) {
+// 				AX18SetPosition(55, 1000);
+// 				direction = 0;
+// 			} else {
+// 				AX18SetPosition(55, 300);
+// 				direction = 1;
+// 			}
+// 		}
+//
+// 		if(diffTimer1() >MS_TO_TICKS(20)) {
+// 			resetDiffTimer1();
+//
+// 			unsigned char buffer[2];
+// 			AX18FRead(55, AX_PRESENT_POSITION_L, buffer, 2);
+//
+// 			pos = unsigned8ToUnsigned16(buffer[0], buffer[1]);
+//
+// 			printf("POS: %d\r\n", (int) pos);
+// 		}

@@ -12,7 +12,7 @@
 #include <util/atomic.h>
 
 #define MAX_TIMER_VALUE 65536
-#define MILLI_TO_TICKS(millis) (F_CPU/1024000)*millis
+#define MS_TO_TICKS(millis) (F_CPU/1024000)*millis
 
 unsigned long timerOverflows;
 unsigned long diffTimeCnt0;
@@ -25,6 +25,8 @@ unsigned long diffOFCount2;
 void startTickTimer(void);
 unsigned long diffTimer0(void);
 unsigned long diffTimer1(void);
+void resetDiffTimer0(void);
+void resetDiffTimer1(void);
 unsigned long diffTimer2(void);
 unsigned long getTick(void);
 void stopTickTimer(void);

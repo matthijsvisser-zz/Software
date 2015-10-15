@@ -49,6 +49,7 @@ LICENSE:
 
 #include <avr/pgmspace.h>
 #include <stdio.h>
+#include <util/delay.h>
 
 #if (__GNUC__ * 100 + __GNUC_MINOR__) < 405
 #error "This library requires AVR-GCC 4.5 or later, update to newer AVR-GCC compiler !"
@@ -182,6 +183,10 @@ extern void uart_puts(const char *s );
 extern void uart_puts_p(const char *s );
 
 extern int uart_printChar(char character, FILE *stream);
+
+
+extern unsigned int uart_canRead(void);
+
 extern int uart1_printChar(char character, FILE *stream);
 
 /**
@@ -204,6 +209,7 @@ extern void uart1_puts_p(const char *s );
 
 extern unsigned int uart1_canRead(void);
 extern void uart1_clearRxBuffer(void);
+extern void uart1_clearTxBuffer(void);
 extern unsigned char uart1_bufferIsEmpty(void);
 extern void uart1_TxEnable(void);
 extern void uart1_TxDisable(void);
