@@ -5,7 +5,7 @@ import math
 
 vrep.simxFinish(-1)
 # clientID = vrep.simxStart('192.168.10.151',19999,True,True,5000,5) # Connect to V-REP
-clientID = vrep.simxStart('192.168.10.150',19999,True,True,5000,5)
+clientID = vrep.simxStart('127.0.0.1',19999,True,True,5000,5)
 if clientID != -1:
     print "Connected to remote API server"
 else:
@@ -42,7 +42,7 @@ errorCode,Joint_5_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_3',vrep.
 errorCode,Joint_6_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_1',vrep.simx_opmode_oneshot_wait)
 errorCode,Joint_6_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_2',vrep.simx_opmode_oneshot_wait)
 errorCode,Joint_6_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_3',vrep.simx_opmode_oneshot_wait)
-errorCode,Dummy_Base_handle = vrep.simxGetObjectHandle(clientID,'Dummy_Base',vrep.simx_opmode_oneshot_wait)
+errorCode,Main_Dummy_handle = vrep.simxGetObjectHandle(clientID,'Main_Dummy',vrep.simx_opmode_oneshot_wait)
 
 returnCode, force = vrep.simxGetJointForce(clientID,Joint_1_1_handle,vrep.simx_opmode_streaming)
 returnCode, force = vrep.simxGetJointForce(clientID,Joint_1_2_handle,vrep.simx_opmode_streaming)
@@ -122,27 +122,27 @@ returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx
 print "Current position:",pos
 time.sleep(1)
 
-#for x in xrange(1,20):
-#	setPosition = [0.2, 0.2, 0.01*x]
-#	returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-#	time.sleep(0.1)
-#	returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
-#	print "Current position:",pos
+for x in xrange(1,20):
+	setPosition = [pos[0], pos[1], -0.01*x]
+	returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
+	time.sleep(0.1)
+	returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
+	print "Current position:",pos
 
 #for x in xrange(1,20):
  #   setPosition = [0.2, 0.2, pos[2]-0.01*x]
-  #  returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
+  #  returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
    # time.sleep(0.1)
 
 
 #r = 0.2681
-r = 0.1
-for degree in xrange(0,90):
-	setPosition = [math.cos(degree)*r + 0.0585, math.sin(degree)*r + 0.1184, 0.01]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	time.sleep(1)
-	returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
-	print "Current position:",pos
+#r = 0.1
+#for degree in xrange(0,90):
+	#setPosition = [math.cos(degree)*r + 0.0585, math.sin(degree)*r + 0.1184, 0.01]
+	#returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
+	#time.sleep(1)
+	#returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
+	#print "Current position:",pos
 
 
 # time.sleep(1)
