@@ -1,0 +1,144 @@
+#!/usr/bin/python
+
+import sys
+import base64
+import time
+import serial
+import getopt
+import binascii
+
+class XBee_packet:
+    def __init__(self):
+        self.command = 0
+        self.length = 0
+        self.data = list()
+        self.checksum = 0
+
+class XBee_communication:
+    def __init__(self, portName = None, baudRate = 115200):
+        self.packets = []
+        self.state = 0
+        self.checksum = 0
+        self.packet = XBee_packet()
+        self.serial = serial.Serial(portName, baudRate)
+
+    def processSerialData(self, data):
+
+        countNewPackets = 0
+        for c in data:
+            if self.state == 0:  # First start byte
+                if ord(c) == 0x5A:
+                    self.state = 1
+                else:
+                    self.state = 0
+            elif self.state == 1:  # Second start byte
+                if ord(c) == 0x3C:
+                    self.state = 2
+                else:
+                    self.state = 0
+            elif self.state == 2:  # Third start byte
+                if ord(c) == 0x42:
+                    self.state = 3
+                else:
+                    self.state = 0
+            elif self.state == 3:  # Fourth start byte
+                if ord(c) == 0x99:
+                    self.state = 4
+                else:
+                    self.state = 0
+            elif self.state == 4:  # Packet length
+                self.packet = XBee_packet(); # Create new packet instance
+                self.packet.length = ord(c)
+                self.checksum |= self.packet.length # Update cheksum
+
+                self.state = 5
+            elif self.state == 5: # Packet command
+                self.packet.command = ord(c)
+                self.checksum |= self.packet.command # Update cheksum
+                self.state = 6
+            elif self.state == 6: # Packet data
+                    self.packet.data.append(ord(c))
+                    self.checksum |= ord(c)
+
+                    if len(self.packet.data) >= self.packet.length: # Data length
+                        self.state = 7
+            elif self.state == 7: # checksum
+                self.packet.checksum = ord(c)
+                self.state = 0
+                if self.checksum == self.packet.checksum: # Add packet to packet list of received correct
+                    self.packets.append(self.packet)
+                    countNewPackets += 1
+        return countNewPackets
+
+    def readPacket(self):
+        if len(self.packets) > 0:
+            return self.packets.pop(0);
+        else:
+            return False
+
+    def TX(self):
+        if(self.serial.isOpen() == False):
+            self.serial.open()
+
+    def RX(self):
+        if(self.serial.isOpen() == False):
+            self.serial.open()
+        else:
+            data = self.serial.read(self.serial.inWaiting())
+            if len(data) > 0:
+                print "__"
+                print "Length:", type(data)
+                print data
+                #for c in data:
+                    #print type(c)
+                #print data.decode("utf-8")
+                #print data.encode('hex')
+
+                self.processSerialData(data)
+
+    def connectSerial(self, portName):
+        if(self.serial.isOpen() == True):
+            self.serial.close()
+
+        self.serial.port = portName
+        if(self.serial.isOpen() == False):
+            self.serial.open()
+
+def main(argv):
+    portName = None
+    baudRate = 115200
+    try:
+        opts, args = getopt.getopt(argv,"hp:r:",["portName=","baudRate="])
+    except getopt.GetoptError:
+        print 'main.py -p <portName> -r <baudRate>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'main.py -p <portName> -r <baudRate>'
+            sys.exit()
+        elif opt in ("-p", "--portName"):
+            portName = arg
+        elif opt in ("-r", "--baudRate"):
+            baudRate = arg
+
+
+    XBee = XBee_communication(portName, baudRate)
+    if(XBee.serial.isOpen() == False):
+        XBee.serial.open()
+
+    data = "02045A3C42990101545532"
+    encoded_data = base64.b16decode(data)
+
+    while True:
+        XBee.serial.write("yolo");
+        XBee.TX()
+        XBee.RX()
+
+        for packet in iter(XBee.readPacket, False):
+            print "New packet!"
+
+        time.sleep(.5)
+
+
+if __name__ == "__main__":
+   main(sys.argv[1:])

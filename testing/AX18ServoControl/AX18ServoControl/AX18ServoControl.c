@@ -3,7 +3,7 @@
 #endif
 
 #define UART_BAUD_RATE 1000000
-#define UART_BAUD_RATE_XBEE 38400
+#define UART_BAUD_RATE_XBEE 115200
 
 #include <avr/io.h>
 #include <util/delay.h>

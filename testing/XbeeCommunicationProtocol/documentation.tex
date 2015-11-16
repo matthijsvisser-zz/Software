@@ -1,0 +1,38 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\title{Serie\"ele Communicatie protocol}
+\author{I. van Alphen, S. van Doesburg, E.  Salsbach, M. Visser}
+\begin{document}
+\maketitle
+\newpage
+
+\section{Protocol}
+Om de robot draadloos aan te sturen wordt er gebruik gemaakt van xbee modules. Deze modules werken via een seri\"e ele verbinding. XBee bevat de mogelijkheid om de seri\"e ele data in data pakketten te versturen om zo individuele pakketten te kunnen onderscheiden. Echter maken wij daar geen gebruik van om het geheel wat simpeler te houden. Dit betekent dat er \' e\'en continu\"e stroom van data is die geanalyseerd moet worden om losse data berichten te onderscheiden.
+
+\subsection{•}
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\textbf{byte nr}      & \textbf{Example value}             & \textbf{meaning}                           \\
+0-3          & 0x5A - 0x3C - 0x42 - 0x99 & Start bytes                       \\
+4            & 0x02                      & Data length \\
+5            & 0x00                      & Command                           \\
+6-(6+length) & 0x60                      & Additional data                   \\
+7+length     & 0xFF                      & Checksum (length, command and data)                  
+\end{tabular}
+\caption{Packet}
+\label{my-label}
+\end{table}
+
+\section{Bibliografie}
+\bibliography{references}
+\bibliographystyle{IEEEtran}
+
+
+\end{document}
