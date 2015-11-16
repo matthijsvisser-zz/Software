@@ -2,40 +2,46 @@ import vrep
 import sys
 import time
 
-vrep.simxFinish(-1) # just in case, close all opened connections
+vrep.simxFinish(-1)
 # clientID = vrep.simxStart('192.168.10.151',19999,True,True,5000,5) # Connect to V-REP
-clientID = vrep.simxStart('127.0.0.1',19999,True,True,5000,5) # Connect to V-REP
+clientID = vrep.simxStart('127.0.0.1',19999,True,True,5000,5)
 if clientID != -1:
     print "Connected to remote API server"
 else:
     print "Connection not succesful"
     sys.exit("Could not connect")
 
-jointNameList = ["Joint_1_1", "Joint_1_2", "Joint_1_3", "Joint_2_1", "Joint_2_2", "Joint_2_3", "Joint_3_1",\
-				 "Joint_3_2", "Joint_3_3", "Joint_4_1", "Joint_4_2", "Joint_4_3", "Joint_5_1", "Joint_5_2",\
-				 "Joint_5_3", "Joint_6_1", "Joint_6_2", "Joint_6_3"]
+# jointNameList = ["Joint_1_1", "Joint_1_2", "Joint_1_3", "Joint_2_1", "Joint_2_2", "Joint_2_3", "Joint_3_1",\
+# 				 "Joint_3_2", "Joint_3_3", "Joint_4_1", "Joint_4_2", "Joint_4_3", "Joint_5_1", "Joint_5_2",\
+# 				 "Joint_5_3", "Joint_6_1", "Joint_6_2", "Joint_6_3"]
 
-errorCode,Joint_1_1_handle = vrep.simxGetObjectHandle(clientID,jointNameList[0],vrep.simx_opmode_oneshot_wait)
+# jointHandleList = [ Joint_1_1_handle,Joint_1_2_handle,Joint_1_3_handle,Joint_2_1_handle,Joint_2_2_handle,
+#                     Joint_2_3_handle,Joint_3_1_handle,Joint_3_2_handle,Joint_3_3_handle,Joint_4_1_handle,
+#                     Joint_4_2_handle,Joint_4_3_handle,Joint_5_1_handle,Joint_5_2_handle,Joint_5_3_handle,
+#                     Joint_6_1_handle,Joint_6_2_handle,Joint_6_3_handle]
 
-# errorCode,Joint_1_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_1_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_1_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_2_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_2_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_2_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_3_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_3_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_3_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_4_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_4_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_4_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_5_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_5_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_5_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_6_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_1',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_6_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_2',vrep.simx_opmode_oneshot_wait)
-# errorCode,Joint_6_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_3',vrep.simx_opmode_oneshot_wait)
-# errorCode,Dummy_Base_handle = vrep.simxGetObjectHandle(clientID,'Dummy_Base',vrep.simx_opmode_oneshot_wait)
+# for item in jointHandleList:
+#     errorCode,jointHandleList[item] = vrep.simxGetObjectHandle(clientID,jointNameList[item],vrep.simx_opmode_oneshot_wait)
+
+errorCode,Joint_1_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_1_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_1_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_1_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_2_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_2_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_2_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_2_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_3_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_3_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_3_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_3_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_4_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_4_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_4_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_4_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_5_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_5_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_5_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_5_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_6_1_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_1',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_6_2_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_2',vrep.simx_opmode_oneshot_wait)
+errorCode,Joint_6_3_handle = vrep.simxGetObjectHandle(clientID,'Joint_6_3',vrep.simx_opmode_oneshot_wait)
+errorCode,Dummy_Base_handle = vrep.simxGetObjectHandle(clientID,'Dummy_Base',vrep.simx_opmode_oneshot_wait)
 
 returnCode, force = vrep.simxGetJointForce(clientID,Joint_1_1_handle,vrep.simx_opmode_streaming)
 returnCode, force = vrep.simxGetJointForce(clientID,Joint_1_2_handle,vrep.simx_opmode_streaming)
@@ -115,25 +121,29 @@ returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx
 print "Current position:",pos
 time.sleep(1)
 
-for x in xrange(1,50):
-	
-	# print "Position set to:",setPosition
-	setPosition = [0.0, 0.0, 0.01*x]
+for x in xrange(1,20):
+	setPosition = [0.2, 0.2, 0.01*x]
 	returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	setPosition = [0.0, 0.0, 0.01*x]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT2_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	setPosition = [0.0, 0.0, 0.01*x]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT3_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	setPosition = [0.0, 0.0, 0.01*x]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT4_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	setPosition = [0.0, 0.0, 0.01*x]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT5_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	setPosition = [0.0, 0.0, 0.01*x]
-	returnCode=vrep.simxSetObjectPosition(clientID,DummyT6_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
-	time.sleep(0.5)
+	time.sleep(0.1)
 	returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
-	# print "Current position:",pos
+	print "Current position:",pos
 
+for x in xrange(1,20):
+    setPosition = [0.2, 0.2, pos[2]-0.01*x]
+    returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
+    time.sleep(0.1)
+
+for x in xrange(1,20):
+    setPosition = [0.2, 0.2 + 0.1*x, 0.01]
+    returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
+    time.sleep(0.1)
+    returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx_opmode_buffer) 
+    print "Current position:",pos
+
+for x in xrange(1,20):
+    setPosition = [0.2, pos[2]-0.0*x, 0.1]
+    returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Dummy_Base_handle,setPosition,vrep.simx_opmode_streaming)
+    time.sleep(0.1)
 
 # time.sleep(1)
 # returnCode, force=vrep.simxGetJointForce(clientID,Joint_1_2_handle,vrep.simx_opmode_buffer)
