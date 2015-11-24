@@ -77,10 +77,10 @@ returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT4_handle,-1,vrep.simx
 returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT5_handle,-1,vrep.simx_opmode_streaming)
 returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT6_handle,-1,vrep.simx_opmode_streaming)
 
-#torque = 100
-#returnCode = vrep.simxSetJointForce(clientID,Joint_1_1_handle,torque,vrep.simx_opmode_oneshot)
-#returnCode = vrep.simxSetJointForce(clientID,Joint_1_2_handle,torque,vrep.simx_opmode_oneshot)
-#returnCode = vrep.simxSetJointForce(clientID,Joint_1_3_handle,torque,vrep.simx_opmode_oneshot)
+torque = 250
+returnCode = vrep.simxSetJointForce(clientID,Joint_1_1_handle,torque,vrep.simx_opmode_oneshot)
+returnCode = vrep.simxSetJointForce(clientID,Joint_1_2_handle,torque,vrep.simx_opmode_oneshot)
+returnCode = vrep.simxSetJointForce(clientID,Joint_1_3_handle,torque,vrep.simx_opmode_oneshot)
 
 # torque = 100
 # returnCode = vrep.simxSetJointForce(clientID,Joint_2_1_handle,torque,vrep.simx_opmode_oneshot)
@@ -122,7 +122,7 @@ returnCode,pos = vrep.simxGetObjectPosition(clientID,DummyT1_handle,-1,vrep.simx
 print "Current position:",pos
 time.sleep(1)
 
-for x in xrange(1,20):
+for x in xrange(1,50):
 	setPosition = [pos[0], pos[1], -0.01*x]
 	returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
 	time.sleep(0.1)
