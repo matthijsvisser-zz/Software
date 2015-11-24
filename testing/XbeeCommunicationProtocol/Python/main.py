@@ -16,11 +16,30 @@ class XBee_packet:
 
 class XBee_communication:
     def __init__(self, portName = None, baudRate = 115200):
-        self.packets = []
+        self.RxPackets = []
+        self.TxPackets = []
         self.state = 0
         self.checksum = 0
-        self.packet = XBee_packet()
+        self.RxPacket = XBee_packet()
+        self.TxPacket = XBee_packet()
         self.serial = serial.Serial(portName, baudRate)
+
+    def sendPacket(self, command, data):
+        packet = []
+        packet.append(command)
+        packet.append(len(data))
+        packet.extend(data)
+
+        checksum = 0
+        checksum |= command
+        checksum |= length
+        for c in data:
+            checksum |= ord(c)
+
+        packet.append(checksum)
+        self.serial.write(packet)
+
+
 
     def processSerialData(self, data):
 
@@ -47,32 +66,33 @@ class XBee_communication:
                 else:
                     self.state = 0
             elif self.state == 4:  # Packet length
-                self.packet = XBee_packet(); # Create new packet instance
-                self.packet.length = ord(c)
-                self.checksum |= self.packet.length # Update cheksum
+                self.RxPacket = XBee_packet(); # Create new packet instance
+                self.RxPacket.length = ord(c)
+                self.checksum |= self.RxPacket.length # Update cheksum
 
                 self.state = 5
             elif self.state == 5: # Packet command
-                self.packet.command = ord(c)
-                self.checksum |= self.packet.command # Update cheksum
+                self.RxPacket.command = ord(c)
+                self.checksum |= self.RxPacket.command # Update cheksum
                 self.state = 6
             elif self.state == 6: # Packet data
-                    self.packet.data.append(ord(c))
+                    self.RxPacket.data.append(ord(c))
                     self.checksum |= ord(c)
 
-                    if len(self.packet.data) >= self.packet.length: # Data length
+                    if len(self.RxPacket.data) >= self.RxPacket.length: # Data length
                         self.state = 7
             elif self.state == 7: # checksum
-                self.packet.checksum = ord(c)
+                self.RxPacket.checksum = ord(c)
                 self.state = 0
-                if self.checksum == self.packet.checksum: # Add packet to packet list of received correct
-                    self.packets.append(self.packet)
+                if self.checksum == self.RxPacket.checksum: # Add packet to packet list if received correct
+                    self.RxPackets.append(self.RxPacket)
+                    self.checksum = 0
                     countNewPackets += 1
         return countNewPackets
 
     def readPacket(self):
-        if len(self.packets) > 0:
-            return self.packets.pop(0);
+        if len(self.RxPackets) > 0:
+            return self.RxPackets.pop(0);
         else:
             return False
 
@@ -126,16 +146,12 @@ def main(argv):
     if(XBee.serial.isOpen() == False):
         XBee.serial.open()
 
-    data = "02045A3C42990101545532"
-    encoded_data = base64.b16decode(data)
-
     while True:
-        XBee.serial.write("yolo");
         XBee.TX()
         XBee.RX()
 
         for packet in iter(XBee.readPacket, False):
-            print "New packet!"
+            print "New packet!", packet
 
         time.sleep(.5)
 
