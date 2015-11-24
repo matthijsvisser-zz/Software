@@ -123,6 +123,7 @@ returnCode,pos5 = vrep.simxGetObjectPosition(clientID,DummyT5_handle,-1,vrep.sim
 returnCode,pos6 = vrep.simxGetObjectPosition(clientID,DummyT6_handle,-1,vrep.simx_opmode_buffer) 
 time.sleep(1)
 
+
 for x in xrange(1,10):
     setPosition = [pos1[0], pos1[1], -0.01*x]
     returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
@@ -173,6 +174,7 @@ for x in xrange(1,10):
     time.sleep(0.1)
     
     
+
 #for x in xrange(1,20):
  #   setPosition = [0.2, 0.2, pos[2]-0.01*x]
   #  returnCode=vrep.simxSetObjectPosition(clientID,DummyT1_handle,Main_Dummy_handle,setPosition,vrep.simx_opmode_streaming)
