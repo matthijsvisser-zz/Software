@@ -12,9 +12,9 @@ else:
     sys.exit("Could not connect")
 
 # Define object handles
-DummyHandle_ = [-1,-1,-1,-1,-1,-1]
+DummyHandle_ = [-1,-1,-1,-1,-1,-1,-1]
 for i in range(1,7):
-    DummyHandle_.append(vrep.simxGetObjectHandle(clientID,'DummyT'+str(i),vrep.simx_opmode_oneshot_wait)[1])
+    DummyHandle_[i] = (vrep.simxGetObjectHandle(clientID,'DummyT'+str(i),vrep.simx_opmode_oneshot_wait)[1])
 
 DummyHandle_Main = vrep.simxGetObjectHandle(clientID,'Main_Dummy',vrep.simx_opmode_oneshot_wait)[1]
 
@@ -23,51 +23,44 @@ DummyHandle_Main = vrep.simxGetObjectHandle(clientID,'Main_Dummy',vrep.simx_opmo
 pos = [-1,-1,-1,-1,-1,-1,-1]
 for i in range(1,7):
     pos[i] = vrep.simxGetObjectPosition(clientID,DummyHandle_[i],-1,vrep.simx_opmode_buffer)[1]
+    print pos [i]
 time.sleep(1)
 
 #standup
 for x in xrange(1,10):
-    setPosition = [pos[1][0], pos[1][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[1],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[2][0], pos[2][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[2],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[3][0], pos[3][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[3],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[4][0], pos[4][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[4],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[5][0], pos[5][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[5],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[6][0], pos[6][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[6],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    time.sleep(0.1)
-
-#Walking pattern
-for x in xrange(1,10):
-    setPosition = [pos[1][0], pos[1][1]+ 0.001*x, 0.001*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[1],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[3][0], pos[3][1]+ 0.001*x, 0.001*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[3],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[5][0], pos[5][1] + 0.001*x, 0.001*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[5],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+    for i in xrange(1,7):
+        setPosition = [pos[i][0], pos[i][1], -0.01*x]
+        returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[i],-1,setPosition,vrep.simx_opmode_streaming)
     time.sleep(0.1)
     
-for x in xrange(1,10):
-    setPosition = [pos[1][0], pos[1][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[1],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[3][0], pos[3][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[3],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[5][0], pos[5][1], -0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[5],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    time.sleep(0.1)
+
+#Walking pattern
+# for x in xrange(1,10):
+#     setPosition = [pos[1][0], pos[1][1]+ 0.001*x, 0.001*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[1],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[3][0], pos[3][1]+ 0.001*x, 0.001*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[3],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[5][0], pos[5][1] + 0.001*x, 0.001*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[5],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     time.sleep(0.1)
+    
+# for x in xrange(1,10):
+#     setPosition = [pos[1][0], pos[1][1], -0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[1],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[3][0], pos[3][1], -0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[3],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[5][0], pos[5][1], -0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[5],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     time.sleep(0.1)
    
-for x in xrange(1,10):
-    setPosition = [pos[2][0], pos[2][1], 0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[2],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[4][0], pos[4][1], 0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[4],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    setPosition = [pos[6][0], pos[6][1], 0.01*x]
-    returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[6],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
-    time.sleep(0.1)
+# for x in xrange(1,10):
+#     setPosition = [pos[2][0], pos[2][1], 0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[2],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[4][0], pos[4][1], 0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[4],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     setPosition = [pos[6][0], pos[6][1], 0.01*x]
+#     returnCode=vrep.simxSetObjectPosition(clientID,DummyHandle_[6],DummyHandle_Main,setPosition,vrep.simx_opmode_streaming)
+#     time.sleep(0.1)
     
     
 
