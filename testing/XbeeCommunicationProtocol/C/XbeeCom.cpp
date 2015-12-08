@@ -1,45 +1,64 @@
 #include "XbeeCom.h"
 
-class XBee_packet {
-  public:
-    unsigned char command;
-    unsigned char length;
-    char *data;
-    unsigned char checksum;
-}
-
-XBee_packet::XBee_packet() {
-  command, length, checksum = 0;
-}
-
-XBee_packet::initBuffer(unsigned char length) {
-  data = malloc(sizeof(char) * length);
-}
-
-class XBee_communication {
-  public:
-    // List of packets
-    XBee_packet *RxPackets;
-    XBee_packet *TxPackets;
-
-    // Temporary packet being received or transmitted
-    XBee_packet RxPacket;
-    XBee_packet TxPacket;
-    unsigned char RxState;
-    unsigned char RxChecksum;
-    unsigned char RxDataCount;
-
-}
-
-XBee_communication::XBee_communication() {
+XBee_communication::XBee_communication(void) {
   RxState, RxChecksum, RxDataCount = 0;
+  RxPackets = (XBee_packet *) malloc(sizeof(XBee_packet) * MAX_PACKETS_RX);
+  RxTail = 0;
+  RxHead = 0;
+
+  TxPackets = (XBee_packet *) malloc(sizeof(XBee_packet) * MAX_PACKETS_TX);
+  TxTail = 0;
+  TxHead = 0;
 }
 
-XBee_communication::processSerialData(char *data, unsigned char length) {
+
+
+// Return number of RxPackets in buffer
+unsigned char XBee_communication::RxPacketsAvailable(void) {
+  if(RxHead > RxTail)
+    return RxHead - RxTail - 1;
+  else
+    return MAX_PACKETS_RX - (RxTail - RxHead);
+}
+
+XBee_packet * XBee_communication::getRxPacket(void) {
+  if(RxPacketsAvailable() > 0) {
+    unsigned char ptr = RxTail;
+
+    if((RxTail + 1) > MAX_PACKETS_RX) {
+      RxTail = 0;
+    } else {
+      RxTail++;
+    }
+
+    return &RxPackets[ptr];
+  } else {
+    return NULL;
+  }
+}
+
+void XBee_communication::saveRxPacket(XBee_packet *packet) {
+
+    memcpy(&RxPackets[RxHead], packet, sizeof(XBee_packet));
+
+    if(RxHead >= MAX_PACKETS_RX)
+      RxHead = 0;
+    else
+      RxHead++;
+
+    if(RxTail == RxHead) {
+      if((RxTail + 1) > MAX_PACKETS_RX)
+        RxTail = 0;
+      else
+        RxTail = RxTail + 1;
+    }
+}
+
+unsigned char XBee_communication::processSerialData(char *data, unsigned char length) {
   unsigned char countNewPackets = 0;
 
   for(unsigned char i = 0; i < length; i++) {
-    char c = data[i];
+    unsigned char c = data[i];
 
     if(RxState == 0) {
       if (c == PACKET_START_BYTE_1) {
@@ -73,9 +92,6 @@ XBee_communication::processSerialData(char *data, unsigned char length) {
       RxPacket.command = c;
       RxChecksum |= c;
 
-      // Initialize packet buffer to receive data
-      RxPacket.initBuffer(RxPacket.length);
-
       RxState = 6;
     } else if(RxState == 6) {
       if(RxDataCount < RxPacket.length) {
@@ -89,6 +105,7 @@ XBee_communication::processSerialData(char *data, unsigned char length) {
       RxPacket.checksum = c;
 
       if(RxPacket.checksum == RxChecksum) {
+        saveRxPacket(&RxPacket);
         countNewPackets++;
       }
 

@@ -68,12 +68,12 @@ class XBee_communication:
             elif self.state == 4:  # Packet length
                 self.RxPacket = XBee_packet(); # Create new packet instance
                 self.RxPacket.length = ord(c)
-                self.checksum |= self.RxPacket.length # Update cheksum
+                self.checksum |= self.RxPacket.length # Update checksum
 
                 self.state = 5
             elif self.state == 5: # Packet command
                 self.RxPacket.command = ord(c)
-                self.checksum |= self.RxPacket.command # Update cheksum
+                self.checksum |= self.RxPacket.command # Update checksum
                 self.state = 6
             elif self.state == 6: # Packet data
                     self.RxPacket.data.append(ord(c))
