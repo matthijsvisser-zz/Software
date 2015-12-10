@@ -15,15 +15,16 @@ XBee_communication::XBee_communication(void) {
 
 // Return number of RxPackets in buffer
 unsigned char XBee_communication::RxPacketsAvailable(void) {
-  if(RxHead > RxTail)
-    return RxHead - RxTail - 1;
+  if(RxHead >= RxTail)
+    return RxHead - RxTail;
   else
     return MAX_PACKETS_RX - (RxTail - RxHead);
 }
 
-XBee_packet * XBee_communication::getRxPacket(void) {
+XBee_packet *XBee_communication::getRxPacket(void) {
   if(RxPacketsAvailable() > 0) {
     unsigned char ptr = RxTail;
+    printf("PTR: %d\n", ptr);
 
     if((RxTail + 1) > MAX_PACKETS_RX) {
       RxTail = 0;

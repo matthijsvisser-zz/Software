@@ -1,7 +1,6 @@
 #include <cstdio>
 #include "XbeeCom.h"
 
-
 int main(void) {
   XBee_communication xbee;
   XBee_packet packet;
@@ -10,23 +9,20 @@ int main(void) {
   packet.checksum = 0x99;
 
   unsigned char command;
-
-  for(int i = 0; i < 1; i++) {
+printf("Packets : %d\n", xbee.RxPacketsAvailable());
+  for(int i = 0; i < 40; i++) {
     printf("H: %d, T: %d\n", xbee.RxHead, xbee.RxTail);
+    packet.command = packet.command + 1;
     xbee.saveRxPacket(&packet);
   }
 
   printf("NOW H: %d, T: %d\n", xbee.RxHead, xbee.RxTail);
 
+  printf("Packets : %d\n", xbee.RxPacketsAvailable());
 
   XBee_packet *RxPacket;
-  RxPacket = xbee.getRxPacket();
-  printf("0x%x\n", RxPacket->command);
-
-  // xbee.saveRxPacket(&packet);
-  // XBee_packet *RxPacket;
-  // RxPacket = xbee.getRxPacket();
-  // unsigned char command = RxPacket->length;
-
-  //("Command: %d\n", command);
+  for(int i = 0; i < 4; i++) {
+    RxPacket = xbee.getRxPacket();
+    printf("command: %x\n", RxPacket->command);
+  }
 }
