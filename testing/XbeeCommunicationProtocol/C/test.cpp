@@ -3,26 +3,19 @@
 
 int main(void) {
   XBee_communication xbee;
-  XBee_packet packet;
-  packet.command = 0x21;
-  packet.length = 0x55;
-  packet.checksum = 0x99;
 
-  unsigned char command;
-printf("Packets : %d\n", xbee.RxPacketsAvailable());
-  for(int i = 0; i < 40; i++) {
-    printf("H: %d, T: %d\n", xbee.RxHead, xbee.RxTail);
-    packet.command = packet.command + 1;
-    xbee.saveRxPacket(&packet);
-  }
+  char serialData[4] = {0x5A, 0x3C, 0x42, 0x99};
+  char serialData2[12] = {0x01, 0x11, 0x20, 0x31, 0x5A, 0x3C, 0x42, 0x99, 0x01, 0x11, 0x20, 0x31};
 
-  printf("NOW H: %d, T: %d\n", xbee.RxHead, xbee.RxTail);
+  xbee.processSerialData(&serialData[0], 4);
+  xbee.processSerialData(&serialData2[0], 12);
 
   printf("Packets : %d\n", xbee.RxPacketsAvailable());
 
   XBee_packet *RxPacket;
-  for(int i = 0; i < 4; i++) {
+  unsigned char packetsNum = xbee.RxPacketsAvailable();
+  for(int i = 0; i < packetsNum; i++) {
     RxPacket = xbee.getRxPacket();
-    printf("command: %x\n", RxPacket->command);
+    printf("command packet %d: %x\n",i,  RxPacket->command);
   }
 }

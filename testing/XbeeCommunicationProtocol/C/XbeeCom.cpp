@@ -1,7 +1,10 @@
 #include "XbeeCom.h"
 
 XBee_communication::XBee_communication(void) {
-  RxState, RxChecksum, RxDataCount = 0;
+  RxState = 0;
+  RxChecksum = 0;
+  RxDataCount = 0;
+
   RxPackets = (XBee_packet *) malloc(sizeof(XBee_packet) * MAX_PACKETS_RX);
   RxTail = 0;
   RxHead = 0;
@@ -24,7 +27,6 @@ unsigned char XBee_communication::RxPacketsAvailable(void) {
 XBee_packet *XBee_communication::getRxPacket(void) {
   if(RxPacketsAvailable() > 0) {
     unsigned char ptr = RxTail;
-    printf("PTR: %d\n", ptr);
 
     if((RxTail + 1) > MAX_PACKETS_RX) {
       RxTail = 0;
@@ -110,7 +112,7 @@ unsigned char XBee_communication::processSerialData(char *data, unsigned char le
         countNewPackets++;
       }
 
-      RxState, RxChecksum, RxDataCount = 0;
+      RxState = 0, RxChecksum = 0, RxDataCount = 0;
 
     }
 
