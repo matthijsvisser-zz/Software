@@ -16,13 +16,14 @@
 #include "IOPorts_ATMega.h"
 #include "uart.h"
 #include "timer.h"
+#include "XbeeCom.h"
 
 FILE uartFileStream = FDEV_SETUP_STREAM(uart_printChar, NULL, _FDEV_SETUP_RW);
 
 
 int main(void)
 {
-	
+	XBee_communication_init();
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE_XBEE,F_CPU));
 	uart1_init(UART_BAUD_SELECT(UART_BAUD_RATE,F_CPU));
 	stdout = &uartFileStream;
@@ -58,9 +59,25 @@ _delay_ms(50);
 	
 	while(1) //infinite loop
 	{
-		printf("CNT: %d\r\n", count++);
-		_delay_ms(20);
-
+		while (uart_canRead()) {
+			char receivedByte = uart_getc();
+			uart_putc(receivedByte);
+			if (XBee_communication_processSerialData(&receivedByte, 1) > 0) {
+				if(XBee_communication_RxPacketsAvailable() > 0) {
+					XBee_packet *packet;
+					packet = XBee_communication_getRxPacket();
+					
+					if(packet->command == 0x00) {
+							char servoId = packet->data[0];
+							char servoPositionLowerByte = packet->data[1];
+							char servoPositionHigherByte = packet->data[2];
+							unsigned long servoPosition = unsigned8ToUnsigned16(servoPositionLowerByte, servoPositionHigherByte);
+							AX18SetPosition(servoId, servoPosition);
+					}
+					
+				}
+			}
+		}
 	}
 	
 	stopTickTimer();

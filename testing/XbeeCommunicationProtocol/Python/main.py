@@ -26,18 +26,29 @@ class XBee_communication:
 
     def sendPacket(self, command, data):
         packet = []
-        packet.append(command)
+        packet.append(0x5A)
+        packet.append(0x3C)
+        packet.append(0x42)
+        packet.append(0x99)
         packet.append(len(data))
+        packet.append(command)
         packet.extend(data)
 
         checksum = 0
+        checksum |= len(data)
         checksum |= command
-        checksum |= length
+
         for c in data:
-            checksum |= ord(c)
+            checksum |= c
 
         packet.append(checksum)
+        print("Send packet: ", packet)
+
+        self.serial.flushOutput()
         self.serial.write(packet)
+        self.serial.flush()
+        self.serial.flushOutput()
+        #self.serial.reset_output_buffer()
 
 
 
@@ -106,8 +117,6 @@ class XBee_communication:
         else:
             data = self.serial.read(self.serial.inWaiting())
             if len(data) > 0:
-                print "__"
-                print "Length:", type(data)
                 print data
                 #for c in data:
                     #print type(c)
@@ -149,11 +158,17 @@ def main(argv):
     while True:
         XBee.TX()
         XBee.RX()
+        print "Alive!"
 
         for packet in iter(XBee.readPacket, False):
             print "New packet!", packet
 
-        time.sleep(.5)
+        XBee.sendPacket(0, bytearray([55, 200, 0]))
+        time.sleep(0.1)
+        XBee.sendPacket(0, bytearray([55, 0, 0]))
+        time.sleep(0.1)
+        # XBee.sendPacket(0, bytearray([0, 200]))
+        # time.sleep(.5)
 
 
 if __name__ == "__main__":
