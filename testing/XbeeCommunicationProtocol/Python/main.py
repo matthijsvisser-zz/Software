@@ -154,13 +154,15 @@ def GetObjectAngle(handle_parent,handle_child):
     
     for angle in eulerAngles:
         # print angle 
-        servoEulerAngles.append(abs(int(math.ceil(angle*(1023/300)))))
-        print "angle:"+repr(angle)
+        correctedAngle = math.ceil(((angle + math.pi) / (2 * math.pi) ) * 1023)
+        servoEulerAngles.append(correctedAngle)
+        print "angle: "+repr(angle)
+        print "Correct angle: " + repr(correctedAngle)
     # return servoEulerAngles
     if handle_parent is handle_main_body:
-        return servoEulerAngles[2]
+        return servoEulerAngles[0]
     else:
-        return servoEulerAngles[2]
+        return servoEulerAngles[0]
 
 def GetAllAngles():
     allAngles = list()
@@ -234,12 +236,14 @@ def main(argv):
         #     # print "New packet!", packet
         _leg = list()
         _leg.append(GetObjectAngle(handle_main_body, handles_[1][0]))
-        # _leg.append(GetObjectAngle(handle_main_body, handles_[1][1]))
-        # _leg.append(GetObjectAngle(handle_main_body, handles_[1][2]))
+        _leg.append(GetObjectAngle(handle_main_body, handles_[1][1]))
+        _leg.append(GetObjectAngle(handle_main_body, handles_[1][2]))
 
         print "leg value:"+repr(_leg[0])
-        setServoPosition(XBee, 55, _leg[0]*10)
-        time.sleep(.1)
+        setServoPosition(XBee, 10, _leg[0])
+        setServoPosition(XBee, 11, _leg[1])
+        setServoPosition(XBee, 12, _leg[2])
+        time.sleep(.02)
         # XBee.sendPacket(0, bytearray([0, 200]))
         # time.sleep(.5)
 
