@@ -6,6 +6,7 @@ import time
 import serial
 import getopt
 import binascii
+import struct
 
 class XBee_packet:
     def __init__(self):
@@ -133,7 +134,16 @@ class XBee_communication:
         if(self.serial.isOpen() == False):
             self.serial.open()
 
+
+def setServoPosition(XBee, servoId, ServoPosition):
+    if ServoPosition > 1023:
+        return 0
+    data = tuple( struct.pack("!I", ServoPosition) )
+    print ServoPosition, data
+    XBee.sendPacket(0, bytearray([servoId, data[3], data[2]]))
+
 def main(argv):
+
     portName = None
     baudRate = 115200
     try:
@@ -163,10 +173,12 @@ def main(argv):
         for packet in iter(XBee.readPacket, False):
             print "New packet!", packet
 
-        XBee.sendPacket(0, bytearray([55, 200, 0]))
-        time.sleep(0.1)
-        XBee.sendPacket(0, bytearray([55, 0, 0]))
-        time.sleep(0.1)
+
+
+        setServoPosition(XBee, 55, 200)
+        time.sleep(2)
+        setServoPosition(XBee, 55, 0)
+        time.sleep(2)
         # XBee.sendPacket(0, bytearray([0, 200]))
         # time.sleep(.5)
 
