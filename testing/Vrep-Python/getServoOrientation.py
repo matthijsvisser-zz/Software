@@ -52,16 +52,24 @@ def GetAllAngles():
 
 	for leg in legs:
 		_leg.append(GetObjectAngle(handle_main_body, handles_[leg][0]))
-		_leg.append(GetObjectAngle(handle_main_body, handles_[leg][1]))
-		_leg.append(GetObjectAngle(handle_main_body, handles_[leg][2]))
+		_leg.append(GetObjectAngle(handles_[leg][0], handles_[leg][1]))
+		_leg.append(GetObjectAngle(handles_[leg][1], handles_[leg][2]))
 		allAngles.append(_leg)
+	
+	print allAngles
+
 	return allAngles
 
 
 while 1:
     clear()
-    print GetAllAngles()
-    # time.sleep(0.5)
+    # GetAllAngles()
+    _leg.append(GetObjectAngle(handle_main_body, handles_[1][0]))
+    _leg.append(GetObjectAngle(handle_main_body, handles_[1][1]))
+    _leg.append(GetObjectAngle(handle_main_body, handles_[1][2]))
+
+    
+    time.sleep(2)
 #     print GetObjectAngle(handle_main_body,handles_[1][0])
 #     print GetObjectAngle(handles_[1][0],handles_[1][1])
 #     print GetObjectAngle(handles_[1][1],handles_[1][2])
