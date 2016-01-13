@@ -8,6 +8,10 @@ import getopt
 import binascii
 import struct
 
+import os
+import vrep
+import math
+
 class XBee_packet:
     def __init__(self):
         self.command = 0
@@ -43,7 +47,7 @@ class XBee_communication:
             checksum |= c
 
         packet.append(checksum)
-        print("Send packet: ", packet)
+        # print("Send packet: ", packet)
 
         self.serial.flushOutput()
         self.serial.write(packet)
@@ -118,7 +122,7 @@ class XBee_communication:
         else:
             data = self.serial.read(self.serial.inWaiting())
             if len(data) > 0:
-                print data
+                # print data
                 #for c in data:
                     #print type(c)
                 #print data.decode("utf-8")
@@ -142,8 +146,64 @@ def setServoPosition(XBee, servoId, ServoPosition):
     print ServoPosition, data
     XBee.sendPacket(0, bytearray([servoId, data[3], data[2]]))
 
-def main(argv):
+# def initializeVrep():
 
+def GetObjectAngle(handle_parent,handle_child):
+    servoEulerAngles = []
+    eulerAngles = vrep.simxGetObjectOrientation(clientID,handle_child,handle_parent,vrep.simx_opmode_oneshot_wait)[1]
+    
+    for angle in eulerAngles:
+        # print angle 
+        servoEulerAngles.append(abs(int(math.ceil(angle*(1023/300)))))
+        print "angle:"+repr(angle)
+    # return servoEulerAngles
+    if handle_parent is handle_main_body:
+        return servoEulerAngles[2]
+    else:
+        return servoEulerAngles[2]
+
+def GetAllAngles():
+    allAngles = list()
+    _leg = list()
+
+    for leg in legs:
+        _leg.append(GetObjectAngle(handle_main_body, handles_[leg][0]))
+        _leg.append(GetObjectAngle(handles_[leg][0], handles_[leg][1]))
+        _leg.append(GetObjectAngle(handles_[leg][1], handles_[leg][2]))
+        allAngles.append(_leg)
+
+    return allAngles
+
+
+vrep.simxFinish(-1)
+# clientID = vrep.simxStart('192.168.10.151',19999,True,True,5000,5) # Connect to V-REP
+clientID = vrep.simxStart('127.0.0.1',19999,True,True,5000,5)
+if clientID != -1:
+    print "Connected to remote API server"
+else:
+    print "Connection not succesful"
+    sys.exit("Could not connect")
+
+error, handle_main_body = vrep.simxGetObjectHandle(clientID,'Main_Body',vrep.simx_opmode_oneshot_wait)
+
+legs = [0,1,2,3,4,5]
+handles_ = []
+
+for leg in legs:
+    _leg = list()
+    _leg.append(vrep.simxGetObjectHandle(clientID,'Connector_'+str(leg),vrep.simx_opmode_oneshot_wait)[1])
+    _leg.append(vrep.simxGetObjectHandle(clientID,'Motor_'+str(leg),vrep.simx_opmode_oneshot_wait)[1])
+    _leg.append(vrep.simxGetObjectHandle(clientID,'Leg_'+str(leg),vrep.simx_opmode_oneshot_wait)[1])
+    handles_.append(_leg)
+
+# Initialize
+for leg in legs:
+    vrep.simxGetObjectOrientation(clientID,handles_[leg][0],handle_main_body,vrep.simx_opmode_streaming)
+    vrep.simxGetObjectOrientation(clientID,handles_[leg][1],handles_[leg][0],vrep.simx_opmode_streaming)
+    vrep.simxGetObjectOrientation(clientID,handles_[leg][2],handles_[leg][1],vrep.simx_opmode_streaming)
+
+
+def main(argv):
     portName = None
     baudRate = 115200
     try:
@@ -168,17 +228,18 @@ def main(argv):
     while True:
         XBee.TX()
         XBee.RX()
-        print "Alive!"
+        # print "Isa!"
 
-        for packet in iter(XBee.readPacket, False):
-            print "New packet!", packet
+        # for packet in iter(XBee.readPacket, False):
+        #     # print "New packet!", packet
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[1][0]))
+        # _leg.append(GetObjectAngle(handle_main_body, handles_[1][1]))
+        # _leg.append(GetObjectAngle(handle_main_body, handles_[1][2]))
 
-
-
-        setServoPosition(XBee, 55, 200)
-        time.sleep(2)
-        setServoPosition(XBee, 55, 0)
-        time.sleep(2)
+        print "leg value:"+repr(_leg[0])
+        setServoPosition(XBee, 55, _leg[0]*10)
+        time.sleep(.1)
         # XBee.sendPacket(0, bytearray([0, 200]))
         # time.sleep(.5)
 
