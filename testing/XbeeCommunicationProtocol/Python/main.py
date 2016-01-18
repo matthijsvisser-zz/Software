@@ -122,6 +122,7 @@ class XBee_communication:
         else:
             data = self.serial.read(self.serial.inWaiting())
             if len(data) > 0:
+                print "Robot: ", data
                 # print data
                 #for c in data:
                     #print type(c)
@@ -143,26 +144,16 @@ def setServoPosition(XBee, servoId, ServoPosition):
     if ServoPosition > 1023:
         return 0
     data = tuple( struct.pack("!I", ServoPosition) )
-    print ServoPosition, data
     XBee.sendPacket(0, bytearray([servoId, data[3], data[2]]))
 
 # def initializeVrep():
 
-def GetObjectAngle(handle_parent,handle_child):
+def GetObjectAngle(handle_parent,handle_child, angleId):
     servoEulerAngles = []
-    eulerAngles = vrep.simxGetObjectOrientation(clientID,handle_child,handle_parent,vrep.simx_opmode_oneshot_wait)[1]
-    
-    for angle in eulerAngles:
-        # print angle 
-        correctedAngle = math.ceil(((angle + math.pi) / (2 * math.pi) ) * 1023)
-        servoEulerAngles.append(correctedAngle)
-        print "angle: "+repr(angle)
-        print "Correct angle: " + repr(correctedAngle)
-    # return servoEulerAngles
-    if handle_parent is handle_main_body:
-        return servoEulerAngles[0]
-    else:
-        return servoEulerAngles[0]
+    eulerAngles = vrep.simxGetObjectOrientation(clientID,handle_child,handle_parent,vrep.simx_opmode_streaming)[1]
+    angle = math.floor(((eulerAngles[angleId] + math.pi) / (2 * math.pi) ) * 1023)
+
+    return angle
 
 def GetAllAngles():
     allAngles = list()
@@ -184,10 +175,14 @@ def setServoPositions(XBee, servoNum, servoData):
     for i in range(0, servoNum):
         servoId = servoData[i*2]
         servoPosition = servoData[i*2 + 1]
-        if(position < 0 or position > 1023):
+        if(servoPosition < 0 or servoPosition > 1023):
             return 0
+
+        positionData = tuple( struct.pack("!I", servoPosition) )
+
         data.append(servoId)
-        data.append(servoPosition)
+        data.append(positionData[3])
+        data.append(positionData[2])
     XBee.sendPacket(1, bytearray(data))
 
 
@@ -202,7 +197,7 @@ else:
 
 error, handle_main_body = vrep.simxGetObjectHandle(clientID,'Main_Body',vrep.simx_opmode_oneshot_wait)
 
-legs = [0,1,2,3,4,5]
+legs = [0,1,2,3,4,5,6]
 handles_ = []
 
 for leg in legs:
@@ -244,20 +239,127 @@ def main(argv):
     while True:
         XBee.TX()
         XBee.RX()
+
+        
         # print "Isa!"
 
         # for packet in iter(XBee.readPacket, False):
-        #     # print "New packet!", packet
+        #     print "New packet!", packet
+        # print "___"
+            
         _leg = list()
-        _leg.append(GetObjectAngle(handle_main_body, handles_[1][0]))
-        _leg.append(GetObjectAngle(handle_main_body, handles_[1][1]))
-        _leg.append(GetObjectAngle(handle_main_body, handles_[1][2]))
+        _leg.append(GetObjectAngle(handle_main_body, handles_[1][0], 0))
+        _leg.append(GetObjectAngle(handles_[1][0], handles_[1][1], 1))
+        _leg.append(GetObjectAngle(handles_[1][1], handles_[1][2], 1))
+        # setServoPosition(XBee, 10, max(_leg[0] + 330, 0))
+        
+        # setServoPosition(XBee, 11, 1023 - _leg[1])
+        # setServoPosition(XBee, 12, _leg[2] + 250)
+        # print _leg
+        positionData = list()
+        positionData.append(10)
+        positionData.append(max(_leg[0] + 330, 0))
 
-        print "leg value:"+repr(_leg[0])
-        setServoPosition(XBee, 10, _leg[0])
-        setServoPosition(XBee, 11, _leg[1])
-        setServoPosition(XBee, 12, _leg[2])
-        time.sleep(.02)
+        positionData.append(11)
+        positionData.append( 1023 - _leg[1])
+
+        positionData.append(12)
+        positionData.append( _leg[2] + 250)
+
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[2][0], 0))
+        _leg.append(GetObjectAngle(handles_[2][0], handles_[2][1], 1))
+        _leg.append(GetObjectAngle(handles_[2][1], handles_[2][2], 1))
+        # setServoPosition(XBee, 20, max(_leg[0] + 130, 0))
+        # setServoPosition(XBee, 21, 1023 - _leg[1])
+        # setServoPosition(XBee, 22, max(0, _leg[2]) - 250)
+        # print _leg
+        positionData.append(20)
+        positionData.append(max(_leg[0] + 130, 0))
+
+        positionData.append(21)
+        positionData.append(1023 - _leg[1])
+
+        positionData.append(22)
+        positionData.append(max(0, _leg[2]) - 250)
+
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[3][0], 0))
+        _leg.append(GetObjectAngle(handles_[3][0], handles_[3][1], 1))
+        _leg.append(GetObjectAngle(handles_[3][1], handles_[3][2], 1))
+        # setServoPosition(XBee, 30, max(_leg[0] + 280, 0))
+        # setServoPosition(XBee, 31, 1023 - _leg[1])
+        # setServoPosition(XBee, 32, max(0, _leg[2]) + 250)
+        # print _leg
+        positionData.append(30)
+        positionData.append(max(_leg[0] + 280, 0))
+
+        positionData.append(31)
+        positionData.append(1023 - _leg[1])
+
+        positionData.append(32)
+        positionData.append(max(0, max(0, _leg[2]) + 250))
+
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[4][0], 0))
+        _leg.append(GetObjectAngle(handles_[4][0], handles_[4][1], 1))
+        _leg.append(GetObjectAngle(handles_[4][1], handles_[4][2], 1))
+        # setServoPosition(XBee, 40, max(_leg[0] + 280, 0))
+        # setServoPosition(XBee, 41, _leg[1])
+        # setServoPosition(XBee, 42, max(0, _leg[2]) - 250)
+        # print _leg
+        positionData.append(40)
+        positionData.append(max(_leg[0] + 280, 0))
+
+        positionData.append(41)
+        positionData.append(_leg[1])
+
+        positionData.append(42)
+        positionData.append(max(0, max(0, _leg[2]) - 250))
+
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[5][0], 0))
+        _leg.append(GetObjectAngle(handles_[5][0], handles_[5][1], 1))
+        _leg.append(GetObjectAngle(handles_[5][1], handles_[5][2], 1))
+        # setServoPosition(XBee, 50, max(_leg[0] + 30, 0))
+        # setServoPosition(XBee, 51, _leg[1])
+        # setServoPosition(XBee, 52, max(0, _leg[2]) + 250)
+        # print _leg
+        # # 
+        positionData.append(50)
+        positionData.append(max(_leg[0] + 300, 0))
+
+        positionData.append(51)
+        positionData.append(_leg[1])
+
+        positionData.append(52)
+        positionData.append(max(0, max(0, _leg[2]) + 250))
+        _leg = list()
+        _leg.append(GetObjectAngle(handle_main_body, handles_[6][0], 0))
+        _leg.append(GetObjectAngle(handles_[6][0], handles_[6][1], 1))
+        _leg.append(GetObjectAngle(handles_[6][1], handles_[6][2], 1))
+        # setServoPosition(XBee, 60, max(_leg[0] + 330, 0))
+        # setServoPosition(XBee, 61, 1023 - _leg[1])
+        # setServoPosition(XBee, 62, max(0, _leg[2]) + 250)
+        # print _leg?
+        positionData.append(60)
+        positionData.append(max(_leg[0] + 330, 0))
+
+        positionData.append(61)
+        positionData.append(1023 - _leg[1])
+
+        positionData.append(62)
+        positionData.append(max(0, _leg[2]) + 250)
+
+        # print positionData
+
+        setServoPositions(XBee, 18, positionData)
+        time.sleep(.05)
+        # print "leg value 1:"+repr(_leg[0])
+        # print "leg value 2:"+repr(_leg[1])
+        # print "leg value 3:"+repr(_leg[2])
+        # setServoPosition(XBee, 55, _leg[2])
+        # time.sleep(0.1) 
         # XBee.sendPacket(0, bytearray([0, 200]))
         # time.sleep(.5)
 
