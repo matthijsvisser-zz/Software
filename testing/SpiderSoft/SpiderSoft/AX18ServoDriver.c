@@ -163,7 +163,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	while(uart1_canRead() > 0) {
 		//printf("Buffer size: %d\r\n", uart1_canRead())
 		char c = uart1_getc();
-	printf("(%d): 0x%x\r\n", RxState, c);
+	printf("Got (%d): 0x%x\r\n", RxState, c);
 		switch(RxState) {
 
 			// 1) First Start byte

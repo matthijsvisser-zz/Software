@@ -30,6 +30,10 @@ int main(void)
 		
 	sei();
 	printf("__RESTART__\r\n");
+	while(1) {
+		_delay_ms(500);
+		AX18SetPosition(55, 500);
+	}
 
 // 	AX18SetID(BROADCAST_ID, 55);
 // 	//AX18SetReturnDelayTime(55, 1);
@@ -59,9 +63,14 @@ _delay_ms(50);
 	
 	while(1) //infinite loop
 	{
+		unsigned int receivedByteInt;
+		char receivedByte;
+		receivedByteInt = 0x0101;
 		while (uart_canRead()) {
-			char receivedByte = uart_getc();
-			uart_putc(receivedByte);
+			//receivedByteInt = uart_getc();
+			char receivedByte = uart_getc(); //(char) receivedByteInt;
+			printf("%x", receivedByte);
+			//uart_putc(receivedByte);
 			if (XBee_communication_processSerialData(&receivedByte, 1) > 0) {
 				if(XBee_communication_RxPacketsAvailable() > 0) {
 					XBee_packet *packet;
@@ -73,6 +82,23 @@ _delay_ms(50);
 							char servoPositionHigherByte = packet->data[2];
 							unsigned long servoPosition = unsigned8ToUnsigned16(servoPositionLowerByte, servoPositionHigherByte);
 							AX18SetPosition(servoId, servoPosition);
+					} else if(packet->command == 0x01) {
+						char numServos = packet->data[0];
+						if (packet->length == (numServos * 3 + 1)) { // 3 bytes per servo + num servos
+						
+							char servoId, servoPositionLowerByte, servoPositionHigherByte;
+							for(unsigned char i = 0; i < numServos; i) {
+								
+								servoId = packet->data[i*3 + 1];
+								servoPositionLowerByte = packet->data[i*3 + 2];
+								servoPositionHigherByte = packet->data[i*3 + 3];
+								AX18SetPosition(servoId, unsigned8ToUnsigned16(servoPositionLowerByte, servoPositionHigherByte));
+								
+							}
+							
+						} else {
+							printf("Packet length not correct. Expected %d bytes got %d bytes.\r\n", (numServos * 3 + 1), packet->length);
+						}
 					}
 					
 				}
