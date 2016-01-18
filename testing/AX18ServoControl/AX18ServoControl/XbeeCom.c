@@ -79,7 +79,7 @@ unsigned char XBee_communication_processSerialData(char *data, unsigned char len
 	
 	for(unsigned char i = 0; i < length; i++) {
 		unsigned char c = data[i];
-		printf("State: %d (0x%x)\r\n", RxState, c);
+		//printf("State: %d (0x%x)\r\n", RxState, c);
 		
 		if(RxState == 0) {
 				if (c == PACKET_START_BYTE_1) {

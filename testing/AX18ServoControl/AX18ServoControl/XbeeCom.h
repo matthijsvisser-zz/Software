@@ -21,7 +21,7 @@
 
 #define MAX_PACKETS_TX 10
 #define MAX_PACKETS_RX 10
-#define MAX_DATA_SIZE 10
+#define MAX_DATA_SIZE 64
 
 typedef struct XBee_packet {
 	unsigned char command;

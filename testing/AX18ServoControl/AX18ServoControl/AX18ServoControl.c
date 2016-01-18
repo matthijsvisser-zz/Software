@@ -29,18 +29,20 @@ int main(void)
 	stdout = &uartFileStream;
 		
 	sei();
-	printf("__RESTART__\r\n");
-	while(1) {
-		_delay_ms(500);
-		AX18SetPosition(55, 500);
-	}
+// 	printf("__RESTART__\r\n");
+// 	while(1) {
+// 		_delay_ms(500);
+// 		AX18SetPosition(55, 500);
+// 	}
 
 // 	AX18SetID(BROADCAST_ID, 55);
 // 	//AX18SetReturnDelayTime(55, 1);
 // 	
 //AX18SetSpeed(55, 100);
 
-AX18SetTorque(55, 1023);
+AX18SetTorque(BROADCAST_ID, 800);
+_delay_ms(50);
+AX18SetSpeed(BROADCAST_ID, 150);
 _delay_ms(50);
 	
 	unsigned long setTorque;// = AX18GetTorque(55);
@@ -63,13 +65,11 @@ _delay_ms(50);
 	
 	while(1) //infinite loop
 	{
-		unsigned int receivedByteInt;
 		char receivedByte;
-		receivedByteInt = 0x0101;
-		while (uart_canRead()) {
-			//receivedByteInt = uart_getc();
-			char receivedByte = uart_getc(); //(char) receivedByteInt;
-			printf("%x", receivedByte);
+		unsigned int receivedByteInt = uart_getc();
+		if ( ! (receivedByteInt == UART_NO_DATA)) {
+			receivedByte = (char) receivedByteInt;
+			//printf("%x", receivedByte);
 			//uart_putc(receivedByte);
 			if (XBee_communication_processSerialData(&receivedByte, 1) > 0) {
 				if(XBee_communication_RxPacketsAvailable() > 0) {
@@ -83,11 +83,11 @@ _delay_ms(50);
 							unsigned long servoPosition = unsigned8ToUnsigned16(servoPositionLowerByte, servoPositionHigherByte);
 							AX18SetPosition(servoId, servoPosition);
 					} else if(packet->command == 0x01) {
-						char numServos = packet->data[0];
+						int numServos = (int)packet->data[0];
 						if (packet->length == (numServos * 3 + 1)) { // 3 bytes per servo + num servos
 						
 							char servoId, servoPositionLowerByte, servoPositionHigherByte;
-							for(unsigned char i = 0; i < numServos; i) {
+							for(unsigned char i = 0; i < numServos; i++) {
 								
 								servoId = packet->data[i*3 + 1];
 								servoPositionLowerByte = packet->data[i*3 + 2];

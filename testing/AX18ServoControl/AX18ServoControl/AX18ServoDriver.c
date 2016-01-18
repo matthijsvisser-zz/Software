@@ -245,8 +245,7 @@ void AX18SetPosition(unsigned char id, unsigned long pos) {
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
-	printf("Set position: %d (0x%x, 0x%x)\r\n", (int)pos, buffer[0], buffer[1]);
-
+printf("p(%d):%d\r\n", id, pos);
 	AX18FWrite(id, AX_GOAL_POSITION_L, buffer, 2);
 }
 
