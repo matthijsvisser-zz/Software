@@ -163,7 +163,7 @@ unsigned char AX18FRead(unsigned char id, unsigned char address, unsigned char *
 	while(uart1_canRead() > 0) {
 		//printf("Buffer size: %d\r\n", uart1_canRead())
 		char c = uart1_getc();
-	printf("(%d): 0x%x\r\n", RxState, c);
+	printf("Got (%d): 0x%x\r\n", RxState, c);
 		switch(RxState) {
 
 			// 1) First Start byte
@@ -245,7 +245,8 @@ void AX18SetPosition(unsigned char id, unsigned long pos) {
 	unsigned char buffer[2] = {
 		unsigned16ToUnsigned8Lower(pos),
 		unsigned16ToUnsigned8Higher(pos)};
-printf("p(%d):%d\r\n", id, pos);
+	printf("Set position: %d (0x%x, 0x%x)\r\n", (int)pos, buffer[0], buffer[1]);
+
 	AX18FWrite(id, AX_GOAL_POSITION_L, buffer, 2);
 }
 

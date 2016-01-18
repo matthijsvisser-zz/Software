@@ -82,7 +82,7 @@ LICENSE:
  *  CDEFS += -DUART_RX_BUFFER_SIZE=nn to your Makefile.
  */
 #ifndef UART_RX_BUFFER_SIZE
-#define UART_RX_BUFFER_SIZE 128
+#define UART_RX_BUFFER_SIZE 32
 #endif
 
 /** @brief  Size of the circular transmit buffer, must be power of 2 
@@ -91,7 +91,7 @@ LICENSE:
  *  CDEFS += -DUART_TX_BUFFER_SIZE=nn to your Makefile.
  */
 #ifndef UART_TX_BUFFER_SIZE
-#define UART_TX_BUFFER_SIZE 128
+#define UART_TX_BUFFER_SIZE 32
 #endif
 
 /* test if the size of the circular buffers fits into SRAM */
@@ -108,7 +108,7 @@ LICENSE:
 #define UART_BUFFER_OVERFLOW  0x0200              /**< @brief receive ringbuffer overflow */
 #define UART_NO_DATA          0x0100              /**< @brief no receive data available   */
 
-
+extern "C" { 
 /*
 ** function prototypes
 */
@@ -216,6 +216,8 @@ extern void uart1_TxDisable(void);
 extern void uart1_TxWaitDisable(void);
 extern void uart1_RxEnable(void);
 extern void uart1_RxDisable(void);
+
+};
 
 
 /** @brief  Macro to automatically put a string constant into program memory */
